@@ -83,10 +83,10 @@ export function ChatComponent() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border p-4">
+      <div className="p-4">
         <form
           onSubmit={handleSendMessage}
-          className="flex items-center gap-2 rounded-full border border-border bg-muted/30 px-4 py-2"
+          className="flex items-center gap-2 border-b border-border px-2 py-3 focus-within:border-foreground transition-colors"
         >
           <input
             type="text"
@@ -99,6 +99,7 @@ export function ChatComponent() {
           <button
             type="submit"
             className="text-muted-foreground hover:text-foreground transition-colors"
+            disabled={isLoading}
           >
             <Send className="h-4 w-4" />
             <span className="sr-only">Send</span>

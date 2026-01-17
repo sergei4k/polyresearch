@@ -11,7 +11,7 @@ export async function POST(req: Request) {
         // const response = await callMyModel(message);
 
         // For now, we just mock a response.
-        const mockResponse = `I received your message: "${message}". This response comes from the API route.`;
+        const mockResponse = `received your message: "${message}"`;
 
         // Simulate network delay
         await new Promise((resolve) => setTimeout(resolve, 500));

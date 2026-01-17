@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from core.config import get_settings
-from routers import analysis
+from config import get_settings
+import analysis
 
 
 @asynccontextmanager

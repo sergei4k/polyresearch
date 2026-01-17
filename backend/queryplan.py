@@ -1,6 +1,6 @@
 import google.generativeai as genai
 import json
-from models.schemas import AnalysisPlan, AnalysisStep
+from schemas import AnalysisPlan, AnalysisStep
 
 
 # Define the available analysis functions that the AI can use

@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Any
-from models.schemas import AnalysisPlan, AnalysisResult, ChartSpec, ChartType
-from services.polymarket_client import PolymarketClient
+from schemas import AnalysisPlan, AnalysisResult, ChartSpec, ChartType
+from polymarketapi import PolymarketClient
 
 
 class PlanExecutor:

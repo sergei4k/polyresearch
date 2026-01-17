@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
-from models.schemas import HypothesisRequest, AnalysisResult
-from services.query_planner import QueryPlanner
-from services.executor import PlanExecutor
-from services.polymarket_client import PolymarketClient
-from core.config import get_settings, Settings
+from schemas import HypothesisRequest, AnalysisResult
+from queryplan import QueryPlanner
+from executor import PlanExecutor
+from polymarketapi import PolymarketClient
+from config import get_settings, Settings
 
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
 

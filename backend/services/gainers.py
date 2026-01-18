@@ -142,42 +142,60 @@ class GainersService:
         # Account is "new" if earliest trade is after cutoff
         return earliest_timestamp >= cutoff_time
     
-    def calculate_gain_from_trades(self, wallet: str, trades: List[Dict]) -> float:
+    def calculate_gain_from_trades(self, wallet: str, trades: List[Dict]) -> Dict:
         """
-        Calculate approximate gain from a user's trades.
-        
+        Calculate comprehensive trading metrics from a user's trades.
+
         This is a simplified calculation:
         - Realized gains: SELL proceeds - BUY costs
         - This doesn't account for unrealized positions or market resolution
-        
+
         Args:
             wallet: Wallet address
             trades: List of trades for this wallet
-        
+
         Returns:
-            Estimated gain in USD
+            Dictionary with trading metrics:
+            - profit: Total profit (proceeds - cost)
+            - total_spent: Total money spent on BUY orders
+            - total_proceeds: Total money from SELL orders
+            - losses: Negative profit (cost - proceeds) if negative
         """
         user_trades = [t for t in trades if t.get('proxyWallet') == wallet or t.get('user') == wallet]
-        
+
         if not user_trades:
-            return 0.0
-        
+            return {
+                'profit': 0.0,
+                'total_spent': 0.0,
+                'total_proceeds': 0.0,
+                'losses': 0.0
+            }
+
         total_cost = 0.0
         total_proceeds = 0.0
-        
+
         for trade in user_trades:
             side = trade.get('side', '').upper()
             price = float(trade.get('price', 0))
             size = float(trade.get('size', 0) or trade.get('usdcSize', 0))
-            
+
             if side == 'BUY':
                 total_cost += price * size
             elif side == 'SELL':
                 total_proceeds += price * size
-        
+
         # Gain = proceeds - cost
-        gain = total_proceeds - total_cost
-        return gain
+        profit = total_proceeds - total_cost
+
+        # Losses are the negative component of profit
+        losses = abs(profit) if profit < 0 else 0.0
+
+        return {
+            'profit': profit,
+            'total_spent': total_cost,
+            'total_proceeds': total_proceeds,
+            'losses': losses
+        }
     
     def calculate_gain_from_activity(self, wallet: str, activities: List[Dict]) -> float:
         """
@@ -212,7 +230,7 @@ class GainersService:
         
         return total_gain
     
-    def find_top_gainers(self, hours: int = 24, limit: int = 20, min_profit: float = 0, sort_by: str = 'profit', token_ids: set = None, account_age_hours: int = 0, **kwargs) -> List[Dict]:
+    def find_top_gainers(self, hours: int = 24, limit: int = 20, min_profit: float = 0, sort_by: str = 'profit', token_ids: set = None, account_age_hours: int = 0, account_age_condition: str = 'reset', **kwargs) -> List[Dict]:
         """
         Find top gainers among active accounts in the last N hours.
 
@@ -222,7 +240,8 @@ class GainersService:
             min_profit: Minimum profit filter
             sort_by: Field to sort by
             token_ids: Set of token IDs to filter markets by (None = all markets)
-            account_age_hours: Maximum account age in hours (0 = no age filter)
+            account_age_hours: Account age threshold in hours
+            account_age_condition: Condition for account age ('reset', 'more', 'less')
 
         Returns:
             List of dictionaries with wallet, gain, and metadata
@@ -271,17 +290,22 @@ class GainersService:
         print(f"   Found {len(wallets)} unique wallets")
 
         # Step 3: Filter by account age if specified
-        if account_age_hours > 0:
+        if account_age_condition != 'reset' and account_age_hours > 0:
             account_age_cutoff = datetime.now(timezone.utc) - timedelta(hours=account_age_hours)
             account_age_days = account_age_hours / 24
-            print(f"🔍 Filtering for accounts created after {account_age_cutoff}...")
+            print(f"🔍 Filtering for accounts by age (condition: {account_age_condition}, threshold: {account_age_days} days)...")
 
             active_wallets = []
             for wallet in wallets:
-                if self.is_new_account(wallet, account_age_cutoff, trades):
+                is_new = self.is_new_account(wallet, account_age_cutoff, trades)
+                # 'less' means younger than threshold (created after cutoff)
+                # 'more' means older than threshold (created before cutoff)
+                if account_age_condition == 'less' and is_new:
+                    active_wallets.append(wallet)
+                elif account_age_condition == 'more' and not is_new:
                     active_wallets.append(wallet)
 
-            print(f"   Found {len(active_wallets)} accounts created within {account_age_days} days")
+            print(f"   Found {len(active_wallets)} accounts matching age criteria")
         else:
             # No age filter - include all active wallets
             active_wallets = list(wallets)
@@ -296,14 +320,17 @@ class GainersService:
 
         for i, wallet in enumerate(active_wallets):
             # Calculate gain from trades (only from filtered trades)
-            trade_gain = self.calculate_gain_from_trades(wallet, trades)
+            metrics = self.calculate_gain_from_trades(wallet, trades)
 
-            if trade_gain >= min_profit:
+            if metrics['profit'] >= min_profit:
                 gains_data.append({
                     'wallet': wallet,
-                    'profit': trade_gain,
-                    'gain': trade_gain,
-                    'trade_gain': trade_gain,
+                    'profit': metrics['profit'],
+                    'gain': metrics['profit'],
+                    'trade_gain': metrics['profit'],
+                    'total_spent': metrics['total_spent'],
+                    'total_proceeds': metrics['total_proceeds'],
+                    'losses': metrics['losses'],
                     'activity_gain': 0,
                     'trades': len([t for t in trades if t.get('proxyWallet') == wallet or t.get('user') == wallet]),
                     'activity_count': 0

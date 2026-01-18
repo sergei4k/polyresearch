@@ -33,12 +33,16 @@ def filter_markets():
         market = data.get('market', None)  # None = all markets
         hours = data.get('hours', 1)
         money_gain = data.get('moneyGain', 0)
+        money_gain_condition = data.get('moneyGainCondition', 'reset')
         money_lost = data.get('moneyLost', 0)
+        money_lost_condition = data.get('moneyLostCondition', 'reset')
         total_money_spent = data.get('totalMoneySpent', 0)
-        trades_condition = data.get('tradesCondition', 'less')
+        total_money_spent_condition = data.get('totalMoneySpentCondition', 'reset')
+        trades_condition = data.get('tradesCondition', 'reset')
         trades_count = data.get('tradesCount', 0)
         user_name_visibility = data.get('userNameVisibility', 'public')
         account_age_hours = data.get('accountAgeHours', 0)
+        account_age_condition = data.get('accountAgeCondition', 'reset')
 
         print(f"Received filter request: {data}")
         print(f"Filter: {trades_condition} than {trades_count} trades")
@@ -57,15 +61,16 @@ def filter_markets():
 
         # Fetch top gainers based on timeframe and market filter
         print(f"Fetching gainers for {hours} hours...")
-        if account_age_hours > 0:
+        if account_age_condition != 'reset' and account_age_hours > 0:
             account_age_days = account_age_hours / 24
-            print(f"Filtering for accounts created within {account_age_days} days ({account_age_hours} hours)")
+            print(f"Filtering for accounts by age: {account_age_condition} than {account_age_days} days")
         gainers = gainers_service.find_top_gainers(
             hours=hours,
             limit=50,  # Fetch more than needed for filtering
-            min_profit=money_gain if money_gain > 0 else 0,
+            min_profit=0,  # Don't filter in the service, filter in app.py
             token_ids=token_ids,
-            account_age_hours=account_age_hours
+            account_age_hours=account_age_hours,
+            account_age_condition=account_age_condition
         )
 
         print(f"Received {len(gainers)} gainers from service")
@@ -75,33 +80,52 @@ def filter_markets():
         filter_stats = {
             'total': len(gainers),
             'failed_money_gain': 0,
+            'failed_money_lost': 0,
+            'failed_total_spent': 0,
             'failed_trades': 0,
             'passed': 0
         }
 
         for gainer in gainers:
-            # Filter by money gain (profit)
-            if money_gain > 0 and gainer.get('profit', 0) < money_gain:
-                filter_stats['failed_money_gain'] += 1
-                continue
-
-            # Filter by money lost (negative profit)
-            # Note: loss would be negative profit, but since we're tracking gains,
-            # we'll skip this filter or interpret it differently
-
-            # Filter by trades count (only if trades_count > 0)
-            if trades_count > 0:
-                trade_count = gainer.get('trades', 0)
-                if trades_condition == 'less' and trade_count >= trades_count:
-                    filter_stats['failed_trades'] += 1
+            # Filter by money gain (wins/profit)
+            if money_gain_condition != 'reset':
+                profit = gainer.get('profit', 0)
+                if money_gain_condition == 'more' and profit <= money_gain:
+                    filter_stats['failed_money_gain'] += 1
                     continue
-                elif trades_condition == 'more' and trade_count <= trades_count:
-                    filter_stats['failed_trades'] += 1
+                elif money_gain_condition == 'less' and profit >= money_gain:
+                    filter_stats['failed_money_gain'] += 1
+                    continue
+
+            # Filter by money lost (losses)
+            if money_lost_condition != 'reset':
+                losses = gainer.get('losses', 0)
+                if money_lost_condition == 'more' and losses <= money_lost:
+                    filter_stats['failed_money_lost'] += 1
+                    continue
+                elif money_lost_condition == 'less' and losses >= money_lost:
+                    filter_stats['failed_money_lost'] += 1
                     continue
 
             # Filter by total money spent
-            # Note: We don't have direct "total spent" in current data
-            # We can approximate with trade_gain calculations or skip
+            if total_money_spent_condition != 'reset':
+                spent = gainer.get('total_spent', 0)
+                if total_money_spent_condition == 'more' and spent <= total_money_spent:
+                    filter_stats['failed_total_spent'] += 1
+                    continue
+                elif total_money_spent_condition == 'less' and spent >= total_money_spent:
+                    filter_stats['failed_total_spent'] += 1
+                    continue
+
+            # Filter by trades count
+            if trades_condition != 'reset':
+                trade_count = gainer.get('trades', 0)
+                if trades_condition == 'more' and trade_count <= trades_count:
+                    filter_stats['failed_trades'] += 1
+                    continue
+                elif trades_condition == 'less' and trade_count >= trades_count:
+                    filter_stats['failed_trades'] += 1
+                    continue
 
             filter_stats['passed'] += 1
             filtered_profiles.append({

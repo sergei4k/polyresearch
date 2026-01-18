@@ -5,9 +5,34 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:500
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
+        const {
+            market,
+            hours,
+            money_gain,
+            money_lost,
+            total_money_spent,
+            trades,
+            account_age,
+            userNameVisibility
+        } = await request.json();
 
-        console.log("Forwarding filter request to backend:", body);
+        const backendPayload = {
+            market,
+            hours,
+            moneyGain: money_gain.amount,
+            moneyGainCondition: money_gain.condition,
+            moneyLost: money_lost.amount,
+            moneyLostCondition: money_lost.condition,
+            totalMoneySpent: total_money_spent.amount,
+            totalMoneySpentCondition: total_money_spent.condition,
+            tradesCount: trades.amount,
+            tradesCondition: trades.condition,
+            accountAgeHours: account_age.amount * 24,
+            accountAgeCondition: account_age.condition,
+            userNameVisibility
+        };
+
+        console.log("Forwarding filter request to backend:", backendPayload);
 
         // Forward request to Flask backend
         const backendResponse = await fetch(`${BACKEND_URL}/api/filter_markets`, {
@@ -15,7 +40,7 @@ export async function POST(request: Request) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify(backendPayload),
         });
 
         if (!backendResponse.ok) {

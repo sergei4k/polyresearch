@@ -17,7 +17,8 @@ import {
   LayoutDashboard,
   Minus,
   Plus,
-  Loader2
+  Loader2,
+  SquareEqual
 } from "lucide-react";
 
 interface Profile {
@@ -34,15 +35,16 @@ export default function Home() {
   const [selectedMarket, setSelectedMarket] = useState("Trending");
   const [hours, setHours] = useState(1);
   const [moneyGain, setMoneyGain] = useState(0);
-  const [moneyGainCondition, setMoneyGainCondition] = useState<"reset" | "more" | "less">("reset");
+  const [moneyGainCondition, setMoneyGainCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
   const [moneyLost, setMoneyLost] = useState(0);
-  const [moneyLostCondition, setMoneyLostCondition] = useState<"reset" | "more" | "less">("reset");
+  const [moneyLostCondition, setMoneyLostCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
   const [totalMoneySpent, setTotalMoneySpent] = useState(0);
-  const [totalMoneySpentCondition, setTotalMoneySpentCondition] = useState<"reset" | "more" | "less">("reset");
-  const [tradesCondition, setTradesCondition] = useState<"reset" | "more" | "less">("reset");
+  const [totalMoneySpentCondition, setTotalMoneySpentCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
+  const [tradesCondition, setTradesCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
   const [tradesCount, setTradesCount] = useState(0);
   const [userNameVisibility, setUserNameVisibility] = useState<"hidden" | "public">("public");
   const [accountAgeDays, setAccountAgeDays] = useState(0);
+  const [accountAgeCondition, setAccountAgeCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
   const [isApplying, setIsApplying] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -60,16 +62,27 @@ export default function Home() {
         body: JSON.stringify({
           market: selectedMarket,
           hours,
-          moneyGain,
-          moneyGainCondition,
-          moneyLost,
-          moneyLostCondition,
-          totalMoneySpent,
-          totalMoneySpentCondition,
-          tradesCondition,
-          tradesCount,
+          money_gain: {
+            condition: moneyGainCondition,
+            amount: moneyGain
+          },
+          money_lost: {
+            condition: moneyLostCondition,
+            amount: moneyLost
+          },
+          total_money_spent: {
+            condition: totalMoneySpentCondition,
+            amount: totalMoneySpent
+          },
+          trades: {
+            condition: tradesCondition,
+            amount: tradesCount
+          },
+          account_age: {
+            condition: accountAgeCondition,
+            amount: accountAgeDays
+          },
           userNameVisibility,
-          accountAgeHours: accountAgeDays * 24, // Convert days to hours for backend
         }),
       });
 
@@ -326,24 +339,24 @@ export default function Home() {
                 <div className="flex flex-col gap-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{item.label}</span>
                   <div className="flex items-center bg-muted rounded-md p-0.5">
-                    {(['reset', 'more', 'less'] as const).map((mode) => (
+                    {(['reset', 'more', 'less', 'equal'] as const).map((mode) => (
                       <button
                         key={mode}
                         onClick={() => item.setCondition(mode)}
                         className={`
-                          px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all
+                          px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all flex items-center justify-center
                           ${item.condition === mode 
                             ? 'bg-background text-foreground shadow-sm' 
                             : 'text-muted-foreground hover:text-foreground'
                           }
                         `}
                       >
-                        {mode}
+                        {mode === 'equal' ? <SquareEqual className="h-3 w-3" /> : mode}
                       </button>
                     ))}
                   </div>
                 </div>
-                <div className="flex items-center justify-between rounded-md border border-border mt-auto min-w-[160px]">
+                <div className="flex items-center justify-between rounded-md border border-border mt-auto min-w-[140px]">
                   <button 
                     onClick={() => {
                       if (item.condition === 'reset') {
@@ -396,29 +409,29 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="space-y-4 mt-8">
+          <div className="space-y-4 mt-4">
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">TRADES DONE</span>
                 <div className="flex items-center bg-muted rounded-md p-0.5">
-                  {(['reset', 'more', 'less'] as const).map((mode) => (
+                  {(['reset', 'more', 'less', 'equal'] as const).map((mode) => (
                     <button
                       key={mode}
                       onClick={() => setTradesCondition(mode)}
                       className={`
-                        px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all
+                        px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all flex items-center justify-center
                         ${tradesCondition === mode 
                           ? 'bg-background text-foreground shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground'
                         }
                       `}
                     >
-                      {mode}
+                      {mode === 'equal' ? <SquareEqual className="h-3 w-3" /> : mode}
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-between rounded-md border border-border mt-auto min-w-[160px]">
+              <div className="flex items-center justify-between rounded-md border border-border mt-auto min-w-[140px]">
                 <button 
                   onClick={() => {
                     if (tradesCondition === 'reset') {
@@ -469,7 +482,82 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-4 mt-8">
+          <div className="space-y-4 mt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">MAX ACCOUNT AGE (DAYS)</span>
+                <div className="flex items-center bg-muted rounded-md p-0.5">
+                  {(['reset', 'more', 'less', 'equal'] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => setAccountAgeCondition(mode)}
+                      className={`
+                        px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all flex items-center justify-center
+                        ${accountAgeCondition === mode 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                        }
+                      `}
+                    >
+                      {mode === 'equal' ? <SquareEqual className="h-3 w-3" /> : mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-md border border-border mt-auto min-w-[140px]">
+                <button 
+                  onClick={() => {
+                    if (accountAgeCondition === 'reset') {
+                      setAccountAgeCondition('more');
+                      setAccountAgeDays(0);
+                    } else {
+                      setAccountAgeDays(Math.max(0, accountAgeDays - 1));
+                    }
+                  }}
+                  className="p-3 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <div className="flex items-center justify-center px-1">
+                  <input 
+                    type={accountAgeCondition === 'reset' ? "text" : "number"}
+                    value={accountAgeCondition === 'reset' ? "--" : accountAgeDays}
+                    onClick={() => {
+                        if (accountAgeCondition === 'reset') {
+                          setAccountAgeCondition('more');
+                          setAccountAgeDays(0);
+                        }
+                      }}
+                    onChange={(e) => {
+                        if (accountAgeCondition === 'reset') {
+                          setAccountAgeCondition('more');
+                        }
+                        setAccountAgeDays(parseInt(e.target.value) || 0);
+                      }}
+                    style={{ width: `${Math.max(3, accountAgeCondition === 'reset' ? 2 : accountAgeDays.toString().length)}ch` }}
+                    className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground ml-1">d</span>
+                </div>
+                <button 
+                  onClick={() => {
+                    if (accountAgeCondition === 'reset') {
+                      setAccountAgeCondition('more');
+                      setAccountAgeDays(0);
+                    } else {
+                      setAccountAgeDays(accountAgeDays + 1);
+                    }
+                  }}
+                  className="p-3 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            {/* <p className="text-xs text-muted-foreground">Set to 0 to include all accounts</p> */} 
+          </div>
+
+          <div className="space-y-4 mt-4">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">USER NAME</span>
             <div className="flex items-center">
               <button
@@ -479,38 +567,6 @@ export default function Home() {
                 {userNameVisibility === "hidden" ? "hidden" : "public"}
               </button>
             </div>
-          </div>
-
-          <div className="space-y-4 mt-8">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">MAX ACCOUNT AGE (DAYS)</span>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Only show accounts created within</span>
-              <div className="flex items-center rounded-md border border-border">
-                <button
-                  onClick={() => setAccountAgeDays(Math.max(0, accountAgeDays - 1))}
-                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Minus className="h-3 w-3" />
-                </button>
-                <div className="flex items-center justify-center px-1">
-                  <input
-                    type="number"
-                    value={accountAgeDays}
-                    onChange={(e) => setAccountAgeDays(parseInt(e.target.value) || 0)}
-                    style={{ width: `${Math.max(3, accountAgeDays.toString().length)}ch` }}
-                    className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                  <span className="text-sm text-muted-foreground ml-1">d</span>
-                </div>
-                <button
-                  onClick={() => setAccountAgeDays(accountAgeDays + 1)}
-                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Plus className="h-3 w-3" />
-                </button>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">Set to 0 to include all accounts</p>
           </div>
           </div>
 

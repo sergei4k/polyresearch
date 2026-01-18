@@ -214,6 +214,10 @@ export default function Home() {
                </div>
             </div>
           )}
+          <div className="mt-auto flex items-center gap-2 px-1 cursor-pointer hover:opacity-80 transition-opacity">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Account</span>
+          </div>
         </aside>
 
         {/* Center Panel - Main Features */}

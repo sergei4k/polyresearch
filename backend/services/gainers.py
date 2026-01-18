@@ -253,7 +253,8 @@ class GainersService:
         # Step 1.5: Filter trades by token IDs if specified
         if token_ids:
             original_count = len(trades)
-            trades = [t for t in trades if t.get('tokenId') in token_ids]
+            # Trades use 'asset' field for token ID, not 'tokenId'
+            trades = [t for t in trades if str(t.get('asset')) in token_ids]
             print(f"   Filtered to {len(trades)} trades in specified markets (from {original_count})")
 
             if not trades:

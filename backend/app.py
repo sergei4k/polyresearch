@@ -30,7 +30,7 @@ def filter_markets():
         data = request.get_json()
 
         # Access individual fields
-        market = data.get('market', 'Trending')
+        market = data.get('market', None)  # None = all markets
         hours = data.get('hours', 1)
         money_gain = data.get('moneyGain', 0)
         money_lost = data.get('moneyLost', 0)
@@ -42,14 +42,18 @@ def filter_markets():
 
         print(f"Received filter request: {data}")
         print(f"Filter: {trades_condition} than {trades_count} trades")
-        print(f"Market category: {market}")
+        print(f"Market category: {market if market else 'All markets'}")
 
         # Fetch token IDs for the selected market category
         token_ids = None
-        if market:
+        if market and market != 'All':
             print(f"Fetching markets for category: {market}")
             token_ids = markets_service.get_token_ids_for_category(market)
             print(f"Found {len(token_ids)} tokens in {market} category")
+            if not token_ids:
+                print(f"WARNING: No token IDs found for category '{market}' - this will return no results")
+        else:
+            print(f"No market filter - analyzing all markets")
 
         # Fetch top gainers based on timeframe and market filter
         print(f"Fetching gainers for {hours} hours...")
@@ -64,28 +68,42 @@ def filter_markets():
             account_age_hours=account_age_hours
         )
 
+        print(f"Received {len(gainers)} gainers from service")
+
         # Apply filters
         filtered_profiles = []
+        filter_stats = {
+            'total': len(gainers),
+            'failed_money_gain': 0,
+            'failed_trades': 0,
+            'passed': 0
+        }
+
         for gainer in gainers:
             # Filter by money gain (profit)
             if money_gain > 0 and gainer.get('profit', 0) < money_gain:
+                filter_stats['failed_money_gain'] += 1
                 continue
 
             # Filter by money lost (negative profit)
             # Note: loss would be negative profit, but since we're tracking gains,
             # we'll skip this filter or interpret it differently
 
-            # Filter by trades count
-            trade_count = gainer.get('trades', 0)
-            if trades_condition == 'less' and trade_count >= trades_count:
-                continue
-            elif trades_condition == 'more' and trade_count <= trades_count:
-                continue
+            # Filter by trades count (only if trades_count > 0)
+            if trades_count > 0:
+                trade_count = gainer.get('trades', 0)
+                if trades_condition == 'less' and trade_count >= trades_count:
+                    filter_stats['failed_trades'] += 1
+                    continue
+                elif trades_condition == 'more' and trade_count <= trades_count:
+                    filter_stats['failed_trades'] += 1
+                    continue
 
             # Filter by total money spent
             # Note: We don't have direct "total spent" in current data
             # We can approximate with trade_gain calculations or skip
 
+            filter_stats['passed'] += 1
             filtered_profiles.append({
                 'wallet': gainer.get('wallet'),
                 'profit': round(gainer.get('profit', 0), 2),
@@ -99,6 +117,7 @@ def filter_markets():
         filtered_profiles.sort(key=lambda x: x['profit'], reverse=True)
         top_10 = filtered_profiles[:10]
 
+        print(f"Filter results: {filter_stats}")
         print(f"Total filtered: {len(filtered_profiles)}, Returning top {len(top_10)} profiles")
 
         return jsonify({

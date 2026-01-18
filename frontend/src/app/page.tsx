@@ -358,9 +358,10 @@ export default function Home() {
                     <Minus className="h-4 w-4" />
                   </button>
                   <div className="flex items-center justify-center px-1">
-                    <input 
-                      type={item.condition === 'reset' ? "text" : "number"}
+                    <input
+                      type="text"
                       value={item.condition === 'reset' ? "--" : item.value}
+                      readOnly={item.condition === 'reset'}
                       onClick={() => {
                         if (item.condition === 'reset') {
                           item.setCondition('more');
@@ -371,7 +372,10 @@ export default function Home() {
                         if (item.condition === 'reset') {
                           item.setCondition('more');
                         }
-                        item.setValue(parseInt(e.target.value) || 0);
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) {
+                          item.setValue(val);
+                        }
                       }}
                       style={{ width: `${Math.max(3, item.condition === 'reset' ? 2 : item.value.toString().length)}ch` }}
                       className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
@@ -433,9 +437,10 @@ export default function Home() {
                   <Minus className="h-4 w-4" />
                 </button>
                 <div className="flex items-center justify-center px-1">
-                  <input 
-                    type={tradesCondition === 'reset' ? "text" : "number"}
+                  <input
+                    type="text"
                     value={tradesCondition === 'reset' ? "--" : tradesCount}
+                    readOnly={tradesCondition === 'reset'}
                     onClick={() => {
                         if (tradesCondition === 'reset') {
                           setTradesCondition('more');
@@ -446,7 +451,10 @@ export default function Home() {
                         if (tradesCondition === 'reset') {
                           setTradesCondition('more');
                         }
-                        setTradesCount(parseInt(e.target.value) || 0);
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) {
+                          setTradesCount(val);
+                        }
                       }}
                     style={{ width: `${Math.max(3, tradesCondition === 'reset' ? 2 : tradesCount.toString().length)}ch` }}
                     className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"

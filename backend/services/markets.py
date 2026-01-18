@@ -206,7 +206,7 @@ class MarketsService:
             category: Market category
 
         Returns:
-            Set of token IDs
+            Set of token IDs (as strings)
         """
         markets = self.get_markets_by_category(category, limit=200)
         token_ids = set()
@@ -214,8 +214,25 @@ class MarketsService:
         for market in markets:
             token_id_list = market.get('token_id', [])
             if isinstance(token_id_list, list):
-                token_ids.update(token_id_list)
+                # token_id_list contains individual token IDs as strings
+                for token_id in token_id_list:
+                    if isinstance(token_id, str):
+                        token_ids.add(token_id)
+                    elif isinstance(token_id, list):
+                        # If it's a nested list, flatten it
+                        token_ids.update(str(tid) for tid in token_id)
+            elif isinstance(token_id_list, str):
+                # If it's a JSON string like '["123", "456"]', parse it
+                try:
+                    parsed = json.loads(token_id_list)
+                    if isinstance(parsed, list):
+                        token_ids.update(str(tid) for tid in parsed)
+                    else:
+                        token_ids.add(token_id_list)
+                except:
+                    # Not JSON, just add as-is
+                    token_ids.add(token_id_list)
             elif token_id_list:  # Single value
-                token_ids.add(token_id_list)
+                token_ids.add(str(token_id_list))
 
         return token_ids

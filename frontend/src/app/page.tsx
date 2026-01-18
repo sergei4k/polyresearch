@@ -203,7 +203,7 @@ export default function Home() {
                           rel="noopener noreferrer"
                           className="font-mono text-sm text-muted-foreground hover:text-primary hover:underline truncate"
                         >
-                           {profile.wallet.slice(0, 6)}...{profile.wallet.slice(-4)}
+                           {profile.handle}
                         </a>
                      </div>
                      <span className="font-mono text-sm font-bold text-primary whitespace-nowrap">

@@ -114,11 +114,7 @@ export default function Home() {
     }
   };
 
-  // Auto-apply filters on initial load
-  useEffect(() => {
-    handleApply();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

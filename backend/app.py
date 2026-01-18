@@ -160,6 +160,78 @@ def filter_markets():
             'message': str(e)
         }), 500
 
+@app.route('/api/trendings', methods=['GET'])
+def trendings():
+    """
+    Get trending markets from Polymarket Gamma API.
+    Returns market name, current prices, volume, and other relevant info.
+    """
+    try:
+        # Get query params
+        limit = request.args.get('limit', 20, type=int)
+        
+        # Fetch trending markets
+        events = markets_service.get_trending_markets(limit=limit)
+        
+        trending_markets = []
+        for event in events:
+            # Extract markets from event
+            event_markets = event.get('markets', [])
+            
+            for market in event_markets:
+                # Get outcome prices (Yes/No)
+                outcomes = market.get('outcomes', ['Yes', 'No'])
+                outcome_prices = market.get('outcomePrices', [])
+                
+                # Parse prices - they come as strings like '["0.65", "0.35"]'
+                if isinstance(outcome_prices, str):
+                    try:
+                        import json
+                        outcome_prices = json.loads(outcome_prices)
+                    except:
+                        outcome_prices = []
+                
+                # Calculate Yes price as percentage
+                yes_price = 0
+                if outcome_prices and len(outcome_prices) > 0:
+                    try:
+                        yes_price = float(outcome_prices[0]) * 100
+                    except:
+                        yes_price = 0
+                
+                trending_markets.append({
+                    'id': market.get('id'),
+                    'event_id': event.get('id'),
+                    'event_slug': event.get('slug'),
+                    'question': market.get('question') or event.get('title'),
+                    'event_title': event.get('title'),
+                    'image': event.get('image'),
+                    'yes_price': round(yes_price, 1),
+                    'no_price': round(100 - yes_price, 1),
+                    'volume': float(event.get('volume', 0) or 0),
+                    'volume_24h': float(event.get('volume24hr', 0) or 0),
+                    'liquidity': float(event.get('liquidity', 0) or 0),
+                    'end_date': event.get('endDate'),
+                    'category': event.get('tags', [None])[0] if event.get('tags') else None,
+                })
+        
+        # Sort by 24h volume
+        trending_markets.sort(key=lambda x: x['volume_24h'], reverse=True)
+        
+        return jsonify({
+            'status': 'success',
+            'count': len(trending_markets),
+            'markets': trending_markets[:limit]
+        })
+        
+    except Exception as e:
+        print(f"Error fetching trending markets: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

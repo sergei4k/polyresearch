@@ -2,9 +2,11 @@ import requests
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Polymarket API endpoints
 DATA_API_BASE = "https://data-api.polymarket.com"
+GAMMA_API_BASE = "https://gamma-api.polymarket.com"
 
 class GainersService:
     """Track gains for active accounts on Polymarket."""
@@ -55,17 +57,59 @@ class GainersService:
             print(f"Error fetching trades: {e}")
             return []
     
+    def get_user_profile(self, wallet: str) -> Optional[Dict]:
+        """
+        Get user profile information including handle/username.
+
+        Args:
+            wallet: Wallet address
+
+        Returns:
+            Dictionary with profile information or None if unavailable
+        """
+        url = f"{GAMMA_API_BASE}/public-profile"
+        params = {
+            'address': wallet,
+        }
+
+        try:
+            response = self.session.get(url, params=params, timeout=5)
+            if response.status_code != 200:
+                return None
+
+            data = response.json()
+            return data
+        except requests.exceptions.RequestException:
+            return None
+
+    def _fetch_handle_for_wallet(self, wallet: str) -> tuple:
+        """
+        Helper method to fetch handle for a single wallet.
+
+        Args:
+            wallet: Wallet address
+
+        Returns:
+            Tuple of (wallet, handle)
+        """
+        profile = self.get_user_profile(wallet)
+        if profile:
+            handle = profile.get('name') or profile.get('pseudonym') or wallet[:10]
+        else:
+            handle = wallet[:10]
+        return (wallet, handle)
+
     def get_user_activity(self, user: str, limit: int = 100) -> List[Dict]:
         """
         Get activity for a specific user.
-        
+
         Note: The activity endpoint may have restrictions or require authentication.
         This method attempts to fetch activity but may return empty if unavailable.
-        
+
         Args:
             user: Wallet address or proxy wallet
             limit: Maximum number of activities to fetch
-        
+
         Returns:
             List of activity dictionaries
         """
@@ -74,15 +118,15 @@ class GainersService:
             'user': user,
             'limit': limit,
         }
-        
+
         try:
             response = self.session.get(url, params=params, timeout=10)
             # Don't raise for status - may not be available for all users
             if response.status_code != 200:
                 return []
-            
+
             data = response.json()
-            
+
             if isinstance(data, list):
                 return data
             elif isinstance(data, dict) and 'data' in data:
@@ -344,4 +388,28 @@ class GainersService:
         else:
             gains_data.sort(key=lambda x: x['profit'], reverse=True)
 
-        return gains_data[:limit]
+        # Step 6: Get top results before fetching profiles
+        top_results = gains_data[:limit]
+
+        # Step 7: Fetch profile handles concurrently for top results
+        print(f"📇 Fetching profile handles for top {len(top_results)} wallets...")
+        wallets = [result['wallet'] for result in top_results]
+
+        # Fetch all handles concurrently with max 10 workers
+        handle_map = {}
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            future_to_wallet = {executor.submit(self._fetch_handle_for_wallet, wallet): wallet for wallet in wallets}
+            for future in as_completed(future_to_wallet):
+                try:
+                    wallet, handle = future.result()
+                    handle_map[wallet] = handle
+                except Exception as e:
+                    wallet = future_to_wallet[future]
+                    print(f"Error fetching handle for {wallet}: {e}")
+                    handle_map[wallet] = wallet[:10]
+
+        # Assign handles to results
+        for result in top_results:
+            result['handle'] = handle_map.get(result['wallet'], result['wallet'][:10])
+
+        return top_results

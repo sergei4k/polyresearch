@@ -130,6 +130,7 @@ def filter_markets():
             filter_stats['passed'] += 1
             filtered_profiles.append({
                 'wallet': gainer.get('wallet'),
+                'handle': gainer.get('handle', gainer.get('wallet')[:10]),
                 'profit': round(gainer.get('profit', 0), 2),
                 'trades': gainer.get('trades', 0),
                 'trade_gain': round(gainer.get('trade_gain', 0), 2),

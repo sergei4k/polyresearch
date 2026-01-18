@@ -24,9 +24,9 @@ import {
 
 interface Profile {
   wallet: string;
+  handle: string;
   profit: number;
   trades: number;
-  trade_gain: number;
   activity_gain: number;
   activity_count: number;
 }
@@ -239,14 +239,14 @@ export default function Home() {
                       <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Wallet Address
                       </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Handle
+                      </th>
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Profit
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Trades
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Trade Gain
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Activity Gain
@@ -280,14 +280,14 @@ export default function Home() {
                             <ExternalLink className="h-3 w-3" />
                           </a>
                         </td>
+                        <td className="px-4 py-3 text-sm">
+                          {profile.handle}
+                        </td>
                         <td className="px-4 py-3 text-sm text-right font-bold text-green-500">
                           ${profile.profit.toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-sm text-right">
                           {profile.trades}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          ${profile.trade_gain.toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-sm text-right">
                           ${profile.activity_gain.toLocaleString()}

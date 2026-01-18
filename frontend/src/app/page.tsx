@@ -34,9 +34,12 @@ export default function Home() {
   const [selectedMarket, setSelectedMarket] = useState("Trending");
   const [hours, setHours] = useState(1);
   const [moneyGain, setMoneyGain] = useState(0);
+  const [moneyGainCondition, setMoneyGainCondition] = useState<"reset" | "more" | "less">("reset");
   const [moneyLost, setMoneyLost] = useState(0);
+  const [moneyLostCondition, setMoneyLostCondition] = useState<"reset" | "more" | "less">("reset");
   const [totalMoneySpent, setTotalMoneySpent] = useState(0);
-  const [tradesCondition, setTradesCondition] = useState<"less" | "more">("less");
+  const [totalMoneySpentCondition, setTotalMoneySpentCondition] = useState<"reset" | "more" | "less">("reset");
+  const [tradesCondition, setTradesCondition] = useState<"reset" | "more" | "less">("reset");
   const [tradesCount, setTradesCount] = useState(0);
   const [userNameVisibility, setUserNameVisibility] = useState<"hidden" | "public">("public");
   const [accountAgeDays, setAccountAgeDays] = useState(0);
@@ -58,8 +61,11 @@ export default function Home() {
           market: selectedMarket,
           hours,
           moneyGain,
+          moneyGainCondition,
           moneyLost,
+          moneyLostCondition,
           totalMoneySpent,
+          totalMoneySpentCondition,
           tradesCondition,
           tradesCount,
           userNameVisibility,
@@ -292,35 +298,98 @@ export default function Home() {
           </div>
 
           <div className="space-y-4">
+            {/* Money Filters */}
             {[
-              { label: "Money Gain", value: moneyGain, setValue: setMoneyGain },
-              { label: "Money Lost", value: moneyLost, setValue: setMoneyLost },
-              { label: "Total Money Spent", value: totalMoneySpent, setValue: setTotalMoneySpent },
+              { 
+                label: "Money Gain", 
+                value: moneyGain, 
+                setValue: setMoneyGain,
+                condition: moneyGainCondition,
+                setCondition: setMoneyGainCondition
+              },
+              { 
+                label: "Money Lost", 
+                value: moneyLost, 
+                setValue: setMoneyLost,
+                condition: moneyLostCondition,
+                setCondition: setMoneyLostCondition
+              },
+              { 
+                label: "Total Money Spent", 
+                value: totalMoneySpent, 
+                setValue: setTotalMoneySpent,
+                condition: totalMoneySpentCondition,
+                setCondition: setTotalMoneySpentCondition
+              },
             ].map((item) => (
               <div key={item.label} className="flex items-center justify-between">
-                <span className="text-sm font-medium">{item.label}</span>
-                <div className="flex items-center rounded-md border border-border">
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{item.label}</span>
+                  <div className="flex items-center bg-muted rounded-md p-0.5">
+                    {(['reset', 'more', 'less'] as const).map((mode) => (
+                      <button
+                        key={mode}
+                        onClick={() => item.setCondition(mode)}
+                        className={`
+                          px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all
+                          ${item.condition === mode 
+                            ? 'bg-background text-foreground shadow-sm' 
+                            : 'text-muted-foreground hover:text-foreground'
+                          }
+                        `}
+                      >
+                        {mode}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between rounded-md border border-border mt-auto min-w-[160px]">
                   <button 
-                    onClick={() => item.setValue(Math.max(0, item.value - 1))}
-                    className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => {
+                      if (item.condition === 'reset') {
+                        item.setCondition('more');
+                        item.setValue(0);
+                      } else {
+                        item.setValue(Math.max(0, item.value - 100));
+                      }
+                    }}
+                    className="p-3 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    <Minus className="h-3 w-3" />
+                    <Minus className="h-4 w-4" />
                   </button>
                   <div className="flex items-center justify-center px-1">
                     <input 
-                      type="number"
-                      value={item.value}
-                      onChange={(e) => item.setValue(parseInt(e.target.value) || 0)}
-                      style={{ width: `${Math.max(3, item.value.toString().length)}ch` }}
-                      className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      type={item.condition === 'reset' ? "text" : "number"}
+                      value={item.condition === 'reset' ? "--" : item.value}
+                      onClick={() => {
+                        if (item.condition === 'reset') {
+                          item.setCondition('more');
+                          item.setValue(0);
+                        }
+                      }}
+                      onChange={(e) => {
+                        if (item.condition === 'reset') {
+                          item.setCondition('more');
+                        }
+                        item.setValue(parseInt(e.target.value) || 0);
+                      }}
+                      style={{ width: `${Math.max(3, item.condition === 'reset' ? 2 : item.value.toString().length)}ch` }}
+                      className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                     />
                     <span className="text-sm text-muted-foreground ml-1">$</span>
                   </div>
                   <button 
-                    onClick={() => item.setValue(item.value + 1)}
-                    className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => {
+                      if (item.condition === 'reset') {
+                        item.setCondition('more');
+                        item.setValue(0);
+                      } else {
+                        item.setValue(item.value + 100);
+                      }
+                    }}
+                    className="p-3 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -328,41 +397,76 @@ export default function Home() {
           </div>
 
           <div className="space-y-4 mt-8">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">TRADES DONE</span>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setTradesCondition(tradesCondition === "less" ? "more" : "less")}
-                  className="text-sm font-medium hover:text-primary transition-colors min-w-[3.5rem] text-center border border-border rounded-md px-2 py-1"
-                >
-                  {tradesCondition === "less" ? "< less" : "> more"}
-                </button>
-                <span className="text-sm text-muted-foreground">than</span>
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">TRADES DONE</span>
+                <div className="flex items-center bg-muted rounded-md p-0.5">
+                  {(['reset', 'more', 'less'] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => setTradesCondition(mode)}
+                      className={`
+                        px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all
+                        ${tradesCondition === mode 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                        }
+                      `}
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center rounded-md border border-border">
+              <div className="flex items-center justify-between rounded-md border border-border mt-auto min-w-[160px]">
                 <button 
-                  onClick={() => setTradesCount(Math.max(0, tradesCount - 1))}
-                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => {
+                    if (tradesCondition === 'reset') {
+                      setTradesCondition('more');
+                      setTradesCount(0);
+                    } else {
+                      setTradesCount(Math.max(0, tradesCount - 1));
+                    }
+                  }}
+                  className="p-3 text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <Minus className="h-3 w-3" />
+                  <Minus className="h-4 w-4" />
                 </button>
                 <div className="flex items-center justify-center px-1">
                   <input 
-                    type="number"
-                    value={tradesCount}
-                    onChange={(e) => setTradesCount(parseInt(e.target.value) || 0)}
-                    style={{ width: `${Math.max(3, tradesCount.toString().length)}ch` }}
-                    className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type={tradesCondition === 'reset' ? "text" : "number"}
+                    value={tradesCondition === 'reset' ? "--" : tradesCount}
+                    onClick={() => {
+                        if (tradesCondition === 'reset') {
+                          setTradesCondition('more');
+                          setTradesCount(0);
+                        }
+                      }}
+                    onChange={(e) => {
+                        if (tradesCondition === 'reset') {
+                          setTradesCondition('more');
+                        }
+                        setTradesCount(parseInt(e.target.value) || 0);
+                      }}
+                    style={{ width: `${Math.max(3, tradesCondition === 'reset' ? 2 : tradesCount.toString().length)}ch` }}
+                    className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                   />
                 </div>
                 <button 
-                  onClick={() => setTradesCount(tradesCount + 1)}
-                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => {
+                    if (tradesCondition === 'reset') {
+                      setTradesCondition('more');
+                      setTradesCount(0);
+                    } else {
+                      setTradesCount(tradesCount + 1);
+                    }
+                  }}
+                  className="p-3 text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <Plus className="h-3 w-3" />
+                  <Plus className="h-4 w-4" />
                 </button>
               </div>
-              </div>
+            </div>
           </div>
 
           <div className="space-y-4 mt-8">

@@ -1,42 +1,9 @@
 # polyresearch
 
-## Backend Installation
+## PolyWatcher: Insider & Informed Trade Detector
+PolyWatcher is a specialized analytics engine designed to detect "Smart Money" and potential insider trading on Polymarket. By correlating data from the Gamma API (Identity/Social) and the Data API (Execution/P&L), the tool identifies wallets that trade with a high degree of "unnatural conviction"—positions taken shortly before market-moving news or with asymmetric risk profiles.
 
-### Prerequisites
-- Python 3.8 or higher
-- pip (Python package manager)
+## Overview
+Prediction markets are often the first place "the truth" appears before it hits mainstream news. PolyWatcher monitors the Polymarket order book and public profiles to flag accounts that match the signature of an informed trader.
 
-### Setup
-
-1. Navigate to the backend directory:
-```bash
-cd backend
-```
-
-2. Create and activate a virtual environment (recommended):
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Configure environment variables:
-```bash
-cp .env.example .env
-```
-
-Edit the `.env` file and add your Gemini API key:
-```
-GEMINI_API_KEY=your_actual_api_key_here
-```
-
-5. Run the development server:
-```bash
-python main.py
-```
-
-The API will be available at `http://localhost:8000`. You can view the interactive API documentation at `http://localhost:8000/docs`.
+This project aims to bridge the gap between on-chain transparency and actionable intelligence, allowing users to follow the "shadow" of those who may have material non-public information (MNPI).

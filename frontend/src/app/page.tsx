@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { 
-  Terminal, 
-  Search, 
-  FileText, 
-  Shield, 
-  User, 
-  Play, 
-  Clock, 
-  TrendingUp, 
+import {
+  Terminal,
+  Search,
+  FileText,
+  Shield,
+  User,
+  Play,
+  Clock,
+  TrendingUp,
   Send,
   ChevronDown,
   Activity,
@@ -19,6 +19,15 @@ import {
   Plus,
   Loader2
 } from "lucide-react";
+
+interface Profile {
+  wallet: string;
+  profit: number;
+  trades: number;
+  trade_gain: number;
+  activity_gain: number;
+  activity_count: number;
+}
 
 export default function Home() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -31,10 +40,13 @@ export default function Home() {
   const [tradesCount, setTradesCount] = useState(0);
   const [userNameVisibility, setUserNameVisibility] = useState<"hidden" | "public">("public");
   const [isApplying, setIsApplying] = useState(false);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleApply = async () => {
     setIsApplying(true);
+    setError(null);
     try {
       const response = await fetch("/api/filter", {
         method: "POST",
@@ -59,13 +71,16 @@ export default function Home() {
 
       const data = await response.json();
       console.log("Filters applied:", data);
-      
-      // Keep the loading state for a bit longer to show the "scrolling" effect if response is too fast
-      // or just to let user see feedback.
-      // await new Promise(resolve => setTimeout(resolve, 500)); 
+
+      if (data.status === 'success' && data.profiles) {
+        setProfiles(data.profiles);
+      } else if (data.error) {
+        setError(data.error);
+      }
 
     } catch (error) {
       console.error("Error applying filters:", error);
+      setError("Failed to fetch profiles. Make sure the backend is running.");
     } finally {
       setIsApplying(false);
     }
@@ -146,8 +161,84 @@ export default function Home() {
         </aside>
 
         {/* Center Panel - Main Features */}
-        <section className="col-span-7 flex flex-col items-center justify-center p-8">
-          
+        <section className="col-span-7 flex flex-col p-8 overflow-hidden">
+          {error && (
+            <div className="mb-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
+              {error}
+            </div>
+          )}
+
+          {profiles.length > 0 ? (
+            <div className="flex-1 overflow-auto">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold mb-2">Top 10 Profiles</h2>
+                <p className="text-sm text-muted-foreground">
+                  Showing {profiles.length} profiles based on your filters
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-border overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Rank
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Wallet Address
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Profit
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Trades
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Trade Gain
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Activity Gain
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {profiles.map((profile, index) => (
+                      <tr key={profile.wallet} className="hover:bg-muted/50 transition-colors">
+                        <td className="px-4 py-3 text-sm font-medium">
+                          #{index + 1}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-mono">
+                          {profile.wallet.slice(0, 6)}...{profile.wallet.slice(-4)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right font-bold text-green-500">
+                          ${profile.profit.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right">
+                          {profile.trades}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right">
+                          ${profile.trade_gain.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right">
+                          ${profile.activity_gain.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No Results Yet</h3>
+                <p className="text-sm text-muted-foreground">
+                  Set your filters and click Apply to see top profiles
+                </p>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Right Sidebar - Market Navigation */}

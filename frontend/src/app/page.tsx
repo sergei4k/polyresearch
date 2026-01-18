@@ -18,7 +18,8 @@ import {
   Minus,
   Plus,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  X
 } from "lucide-react";
 
 interface Profile {
@@ -47,6 +48,7 @@ export default function Home() {
   const [accountAgeCondition, setAccountAgeCondition] = useState<"reset" | "more" | "less">("reset");
   const [isApplying, setIsApplying] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [selectedProfiles, setSelectedProfiles] = useState<Profile[]>([]);
   const [error, setError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -139,6 +141,13 @@ export default function Home() {
     "Mentions"
   ];
 
+  const formatK = (num: number) => {
+    if (Math.abs(num) >= 1000) {
+      return (num / 1000).toFixed(1) + 'k';
+    }
+    return num.toString();
+  };
+
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground font-sans overflow-hidden">
       {/* Header */}
@@ -165,20 +174,42 @@ export default function Home() {
         <aside className="col-span-2 flex flex-col gap-6 p-4">
 
 
-          <div className="rounded-xl border border-border p-4 shadow-sm">
-            <div className="flex items-center justify-between py-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                <span className="text-primary">$</span> Exposure
-              </span>
-              <span className="font-mono text-sm font-bold">$17,880</span>
+          {selectedProfiles.length > 0 && (
+            <div className="rounded-xl border border-border overflow-hidden">
+               <div className="bg-muted/50 px-4 py-2 border-b border-border">
+                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                   Selected Wallets
+                 </span>
+               </div>
+               <div className="divide-y divide-border">
+                 {selectedProfiles.map((profile) => (
+                   <div key={profile.wallet} className="group flex items-center justify-between p-3 hover:bg-muted/20 transition-colors">
+                     <div className="flex items-center gap-2 overflow-hidden">
+                        <button
+                          onClick={() => {
+                            setSelectedProfiles(selectedProfiles.filter(p => p.wallet !== profile.wallet));
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-muted rounded-full transition-all"
+                        >
+                          <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                        </button>
+                        <a
+                          href={`https://polygonscan.com/address/${profile.wallet}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-sm text-muted-foreground hover:text-primary hover:underline truncate"
+                        >
+                           {profile.wallet.slice(0, 6)}...{profile.wallet.slice(-4)}
+                        </a>
+                     </div>
+                     <span className="font-mono text-sm font-bold text-green-500 whitespace-nowrap ml-2">
+                       ${formatK(profile.profit)}
+                     </span>
+                   </div>
+                 ))}
+               </div>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-border pt-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                <Activity className="h-3 w-3 text-red-500" /> PNL
-              </span>
-              <span className="font-mono text-sm font-bold text-red-500">-$779</span>
-            </div>
-          </div>
+          )}
         </aside>
 
         {/* Center Panel - Main Features */}
@@ -225,8 +256,18 @@ export default function Home() {
                   <tbody className="divide-y divide-border">
                     {profiles.map((profile, index) => (
                       <tr key={profile.wallet} className="hover:bg-muted/50 transition-colors">
-                        <td className="px-4 py-3 text-sm font-medium">
-                          #{index + 1}
+                        <td 
+                          className="px-4 py-3 text-sm font-medium cursor-pointer relative group/rank w-[60px]"
+                          onClick={() => {
+                            if (!selectedProfiles.find(p => p.wallet === profile.wallet)) {
+                              setSelectedProfiles([...selectedProfiles, profile]);
+                            }
+                          }}
+                        >
+                          <span className="group-hover/rank:opacity-0 transition-opacity">#{index + 1}</span>
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/rank:opacity-100 transition-opacity">
+                            <Plus className="h-4 w-4 text-primary" />
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-sm font-mono">
                           <a

@@ -23,6 +23,8 @@ import {
   Info
 } from "lucide-react";
 import { TrendingBar } from "@/components/TrendingBar";
+import { ProfitChart } from "@/components/ProfitChart";
+import { AIAnalysis } from "@/components/AIAnalysis";
 
 interface Profile {
   wallet: string;
@@ -51,6 +53,7 @@ export default function Home() {
   const [selectedProfiles, setSelectedProfiles] = useState<Profile[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<number>(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleApply = async () => {
@@ -98,6 +101,7 @@ export default function Home() {
 
       if (data.status === 'success' && data.profiles) {
         setProfiles(data.profiles);
+        setLastUpdated(Date.now());
       } else if (data.error) {
         setError(data.error);
       }
@@ -109,6 +113,12 @@ export default function Home() {
       setIsApplying(false);
     }
   };
+
+  // Auto-apply filters on initial load
+  useEffect(() => {
+    handleApply();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -191,6 +201,48 @@ export default function Home() {
         {/* Left Sidebar - Data Source & Stats */}
         <aside className="col-span-2 flex flex-col gap-6 p-4">
 
+
+
+          {/* Top Profits Section */}
+          {profiles.length > 0 && (
+            <div className="rounded-xl border border-border overflow-hidden mb-6">
+               <div className="bg-muted/50 px-4 py-2 border-b border-border">
+                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                   Top Profits
+                 </span>
+               </div>
+               <div className="divide-y divide-border">
+                 {[...profiles].sort((a, b) => b.profit - a.profit).slice(0, 3).map((profile) => (
+                   <div key={`top-${profile.wallet}`} className="group flex items-center justify-between p-3 hover:bg-muted/20 transition-colors">
+                     <div className="flex items-center gap-2 overflow-hidden">
+                        <button
+                          onClick={() => {
+                            if (!selectedProfiles.find(p => p.wallet === profile.wallet)) {
+                                setSelectedProfiles([...selectedProfiles, profile]);
+                            }
+                          }}
+                          className="p-1 hover:bg-muted rounded-full transition-all text-muted-foreground hover:text-green-500"
+                          title="Add to Watchlist"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                        <a
+                          href={`https://polygonscan.com/address/${profile.wallet}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-sm text-foreground hover:text-primary hover:underline truncate"
+                        >
+                           {profile.handle || `${profile.wallet.slice(0, 6)}...`}
+                        </a>
+                     </div>
+                     <span className="font-mono text-sm font-bold text-green-500 whitespace-nowrap">
+                       ${formatK(profile.profit)}
+                     </span>
+                   </div>
+                 ))}
+               </div>
+            </div>
+          )}
 
           {selectedProfiles.length > 0 && (
             <div className="rounded-xl border border-border overflow-hidden">
@@ -302,9 +354,15 @@ export default function Home() {
           )}
 
           {profiles.length > 0 ? (
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-auto no-scrollbar">
+              <div className="mb-6 grid grid-cols-2 gap-8">
+                <ProfitChart profiles={profiles} />
+                <div className="flex flex-col justify-center">
+                   <AIAnalysis profiles={profiles.slice(0, 10)} lastUpdated={lastUpdated} />
+                </div>
+              </div>
               <div className="mb-4">
-                <h2 className="text-2xl font-serif mb-2">Top 10 Profiles</h2>
+                <h2 className="text-2xl font-serif mb-2">Top Profiles</h2>
                 <p className="text-sm text-muted-foreground">
                   Showing {profiles.length} profiles based on your filters
                 </p>
@@ -333,7 +391,7 @@ export default function Home() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {profiles.map((profile, index) => (
-                      <tr key={profile.wallet} className="hover:bg-muted/50 transition-colors">
+                      <tr key={profile.wallet} className="bg-muted/10 hover:bg-muted/20 transition-colors">
                         <td 
                           className="px-4 py-3 text-sm font-medium cursor-pointer relative group/rank w-[60px]"
                           onClick={() => {
@@ -358,8 +416,8 @@ export default function Home() {
                             <ExternalLink className="h-3 w-3" />
                           </a>
                         </td>
-                        <td className="px-4 py-3 text-sm">
-                          {profile.handle}
+                        <td className="px-4 py-3 text-sm truncate max-w-[200px]" title={profile.handle}>
+                          {profile.handle.length > 20 ? `${profile.handle.slice(0, 20)}...` : profile.handle}
                         </td>
                         <td className="px-4 py-3 text-sm text-right font-bold text-primary">
                           ${profile.profit.toLocaleString()}

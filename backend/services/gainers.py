@@ -274,27 +274,16 @@ class GainersService:
         for i, wallet in enumerate(new_wallets):
             # Calculate gain from trades
             trade_gain = self.calculate_gain_from_trades(wallet, trades)
-            
-            # Also try to get activity-based gain (optional, might be slow for many users)
-            # For speed, let's skip activity API call for every user unless requested or if necessary
-            # But original logic used it. We will use it if trade_gain is high or just use trade_gain to speed up
-            
-            # Reverting to original logic to be safe
-            activities = self.get_user_activity(wallet, limit=50) # Reduced limit slightly
-            activity_gain = self.calculate_gain_from_activity(wallet, activities)
-            
-            # Use the higher of the two methods
-            total_gain = max(trade_gain, activity_gain)
-            
-            if total_gain >= min_profit:
+
+            if trade_gain >= min_profit:
                 gains_data.append({
                     'wallet': wallet,
-                    'profit': total_gain, # Renamed to profit to match API expectations
-                    'gain': total_gain,   # Keep for compat
+                    'profit': trade_gain,
+                    'gain': trade_gain,
                     'trade_gain': trade_gain,
-                    'activity_gain': activity_gain,
-                    'trades': len([t for t in trades if t.get('proxyWallet') == wallet or t.get('user') == wallet]), # Renamed to trades
-                    'activity_count': len(activities)
+                    'activity_gain': 0,
+                    'trades': len([t for t in trades if t.get('proxyWallet') == wallet or t.get('user') == wallet]),
+                    'activity_count': 0
                 })
         
         # Step 5: Sort

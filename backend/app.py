@@ -31,7 +31,7 @@ def filter_markets():
 
         # Access individual fields
         market = data.get('market', 'Trending')
-        days = data.get('days', 1)
+        hours = data.get('hours', 1)
         money_gain = data.get('moneyGain', 0)
         money_lost = data.get('moneyLost', 0)
         total_money_spent = data.get('totalMoneySpent', 0)
@@ -41,9 +41,6 @@ def filter_markets():
 
         print(f"Received filter request: {data}")
         print(f"Filter: {trades_condition} than {trades_count} trades")
-
-        # Convert days to hours for the API
-        hours = days * 24
 
         # Fetch top gainers based on timeframe
         print(f"Fetching gainers for {hours} hours...")

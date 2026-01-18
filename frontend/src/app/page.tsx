@@ -21,6 +21,7 @@ import {
   ExternalLink,
   X
 } from "lucide-react";
+import { TrendingBar } from "@/components/TrendingBar";
 
 interface Profile {
   wallet: string;
@@ -151,7 +152,7 @@ export default function Home() {
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground font-sans overflow-hidden">
       {/* Header */}
-      <header className="flex h-14 items-center justify-between border-b border-border px-4 py-2">
+      <header className="flex h-14 min-h-[3.5rem] max-h-[3.5rem] items-center justify-between border-b border-border px-4 py-2 shrink-0 overflow-hidden">
         <div className="flex items-center gap-8 flex-1 overflow-hidden">
           <div className="flex items-center gap-2 flex-none">
             <LayoutDashboard className="h-4 w-4 text-primary" />
@@ -160,8 +161,11 @@ export default function Home() {
             </div>
           </div>
 
-
+          <TrendingBar />
         </div>
+
+
+
 
         <div className="flex items-center gap-4 flex-none pl-4">
           

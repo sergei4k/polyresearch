@@ -156,7 +156,7 @@ export default function Home() {
           <div className="flex items-center gap-2 flex-none">
             <LayoutDashboard className="h-4 w-4 text-primary" />
             <div className="flex flex-col">
-              <span className="text-lg font-medium leading-none tracking-tight">PolyResearch</span>
+              <span className="text-xl font-serif leading-none tracking-tight">PolyWatcher</span>
             </div>
           </div>
 
@@ -202,7 +202,7 @@ export default function Home() {
                            {profile.wallet.slice(0, 6)}...{profile.wallet.slice(-4)}
                         </a>
                      </div>
-                     <span className="font-mono text-sm font-bold text-green-500 whitespace-nowrap ml-2">
+                     <span className="font-mono text-sm font-bold text-primary whitespace-nowrap">
                        ${formatK(profile.profit)}
                      </span>
                    </div>
@@ -215,7 +215,7 @@ export default function Home() {
         {/* Center Panel - Main Features */}
         <section className="col-span-7 flex flex-col p-8 overflow-hidden">
           {error && (
-            <div className="mb-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
+            <div className="mb-4 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive">
               {error}
             </div>
           )}
@@ -223,7 +223,7 @@ export default function Home() {
           {profiles.length > 0 ? (
             <div className="flex-1 overflow-auto">
               <div className="mb-4">
-                <h2 className="text-2xl font-bold mb-2">Top 10 Profiles</h2>
+                <h2 className="text-2xl font-serif mb-2">Top 10 Profiles</h2>
                 <p className="text-sm text-muted-foreground">
                   Showing {profiles.length} profiles based on your filters
                 </p>
@@ -283,7 +283,7 @@ export default function Home() {
                         <td className="px-4 py-3 text-sm">
                           {profile.handle}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right font-bold text-green-500">
+                        <td className="px-4 py-3 text-sm text-right font-bold text-primary">
                           ${profile.profit.toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-sm text-right">
@@ -302,7 +302,7 @@ export default function Home() {
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
                 <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No Results Yet</h3>
+                <h3 className="text-xl font-serif mb-2">No Results Yet</h3>
                 <p className="text-sm text-muted-foreground">
                   Set your filters and click Apply to see top profiles
                 </p>

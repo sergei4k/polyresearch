@@ -1,14 +1,23 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
+import { JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
 
-const dmSans = DM_Sans({ subsets: ["latin"] });
+const jetbrainsMono = JetBrains_Mono({ 
+  subsets: ["latin"],
+  variable: "--font-mono"
+});
+
+const instrumentSerif = Instrument_Serif({ 
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-serif"
+});
 
 export const metadata: Metadata = {
-  title: "PolyResearch",
-  description: "PolyResearch",
+  title: "PolyWatcher",
+  description: "PolyWatcher - Track Polymarket wallets",
 };
 
 export default function RootLayout({
@@ -17,12 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={dmSans.className}>
+    <html lang="en" suppressHydrationWarning className="dark">
+      <body className={`${jetbrainsMono.variable} ${instrumentSerif.variable} font-mono`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}

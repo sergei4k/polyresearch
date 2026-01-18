@@ -17,8 +17,7 @@ import {
   LayoutDashboard,
   Minus,
   Plus,
-  Loader2,
-  SquareEqual
+  Loader2
 } from "lucide-react";
 
 interface Profile {
@@ -35,16 +34,16 @@ export default function Home() {
   const [selectedMarket, setSelectedMarket] = useState("Trending");
   const [hours, setHours] = useState(1);
   const [moneyGain, setMoneyGain] = useState(0);
-  const [moneyGainCondition, setMoneyGainCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
+  const [moneyGainCondition, setMoneyGainCondition] = useState<"reset" | "more" | "less">("reset");
   const [moneyLost, setMoneyLost] = useState(0);
-  const [moneyLostCondition, setMoneyLostCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
+  const [moneyLostCondition, setMoneyLostCondition] = useState<"reset" | "more" | "less">("reset");
   const [totalMoneySpent, setTotalMoneySpent] = useState(0);
-  const [totalMoneySpentCondition, setTotalMoneySpentCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
-  const [tradesCondition, setTradesCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
+  const [totalMoneySpentCondition, setTotalMoneySpentCondition] = useState<"reset" | "more" | "less">("reset");
+  const [tradesCondition, setTradesCondition] = useState<"reset" | "more" | "less">("reset");
   const [tradesCount, setTradesCount] = useState(0);
-  const [userNameVisibility, setUserNameVisibility] = useState<"hidden" | "public">("public");
+  const [userNameVisibility, setUserNameVisibility] = useState<"reset" | "public" | "hidden">("reset");
   const [accountAgeDays, setAccountAgeDays] = useState(0);
-  const [accountAgeCondition, setAccountAgeCondition] = useState<"reset" | "more" | "less" | "equal">("reset");
+  const [accountAgeCondition, setAccountAgeCondition] = useState<"reset" | "more" | "less">("reset");
   const [isApplying, setIsApplying] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -338,11 +337,17 @@ export default function Home() {
               <div key={item.label} className="flex items-center justify-between">
                 <div className="flex flex-col gap-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{item.label}</span>
-                  <div className="flex items-center bg-muted rounded-md p-0.5">
-                    {(['reset', 'more', 'less', 'equal'] as const).map((mode) => (
+                  <div className="flex items-center bg-muted rounded-md p-0.5 w-fit">
+                    {(['more', 'less'] as const).map((mode) => (
                       <button
                         key={mode}
-                        onClick={() => item.setCondition(mode)}
+                        onClick={() => {
+                          if (item.condition === mode) {
+                            item.setCondition('reset');
+                          } else {
+                            item.setCondition(mode);
+                          }
+                        }}
                         className={`
                           px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all flex items-center justify-center
                           ${item.condition === mode 
@@ -351,7 +356,7 @@ export default function Home() {
                           }
                         `}
                       >
-                        {mode === 'equal' ? <SquareEqual className="h-3 w-3" /> : mode}
+                        {mode}
                       </button>
                     ))}
                   </div>
@@ -417,11 +422,17 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">TRADES DONE</span>
-                <div className="flex items-center bg-muted rounded-md p-0.5">
-                  {(['reset', 'more', 'less', 'equal'] as const).map((mode) => (
+                <div className="flex items-center bg-muted rounded-md p-0.5 w-fit">
+                  {(['more', 'less'] as const).map((mode) => (
                     <button
                       key={mode}
-                      onClick={() => setTradesCondition(mode)}
+                      onClick={() => {
+                        if (tradesCondition === mode) {
+                          setTradesCondition('reset');
+                        } else {
+                          setTradesCondition(mode);
+                        }
+                      }}
                       className={`
                         px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all flex items-center justify-center
                         ${tradesCondition === mode 
@@ -430,7 +441,7 @@ export default function Home() {
                         }
                       `}
                     >
-                      {mode === 'equal' ? <SquareEqual className="h-3 w-3" /> : mode}
+                      {mode}
                     </button>
                   ))}
                 </div>
@@ -494,11 +505,17 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">MAX ACCOUNT AGE (DAYS)</span>
-                <div className="flex items-center bg-muted rounded-md p-0.5">
-                  {(['reset', 'more', 'less', 'equal'] as const).map((mode) => (
+                <div className="flex items-center bg-muted rounded-md p-0.5 w-fit">
+                  {(['more', 'less'] as const).map((mode) => (
                     <button
                       key={mode}
-                      onClick={() => setAccountAgeCondition(mode)}
+                      onClick={() => {
+                         if (accountAgeCondition === mode) {
+                          setAccountAgeCondition('reset');
+                        } else {
+                          setAccountAgeCondition(mode);
+                        }
+                      }}
                       className={`
                         px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all flex items-center justify-center
                         ${accountAgeCondition === mode 
@@ -507,7 +524,7 @@ export default function Home() {
                         }
                       `}
                     >
-                      {mode === 'equal' ? <SquareEqual className="h-3 w-3" /> : mode}
+                      {mode}
                     </button>
                   ))}
                 </div>
@@ -566,14 +583,31 @@ export default function Home() {
           </div>
 
           <div className="space-y-4 mt-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">USER NAME</span>
-            <div className="flex items-center">
-              <button
-                onClick={() => setUserNameVisibility(userNameVisibility === "hidden" ? "public" : "hidden")}
-                className="text-sm font-medium hover:text-primary transition-colors min-w-[5rem] text-center border border-border rounded-md px-2 py-1"
-              >
-                {userNameVisibility === "hidden" ? "hidden" : "public"}
-              </button>
+            <div className="flex flex-col gap-2 w-fit">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">USER NAME</span>
+              <div className="flex items-center bg-muted rounded-md p-0.5 w-fit">
+                {(['public', 'hidden'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                        if (userNameVisibility === mode) {
+                          setUserNameVisibility('reset');
+                        } else {
+                          setUserNameVisibility(mode);
+                        }
+                    }}
+                    className={`
+                      px-2 py-1 text-[10px] uppercase font-bold rounded-sm transition-all flex items-center justify-center
+                      ${userNameVisibility === mode 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                      }
+                    `}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           </div>

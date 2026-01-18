@@ -32,7 +32,7 @@ interface Profile {
 export default function Home() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedMarket, setSelectedMarket] = useState("Trending");
-  const [days, setDays] = useState(1);
+  const [hours, setHours] = useState(1);
   const [moneyGain, setMoneyGain] = useState(0);
   const [moneyLost, setMoneyLost] = useState(0);
   const [totalMoneySpent, setTotalMoneySpent] = useState(0);
@@ -55,7 +55,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           market: selectedMarket,
-          days,
+          hours,
           moneyGain,
           moneyLost,
           totalMoneySpent,
@@ -275,22 +275,18 @@ export default function Home() {
           </div>
 
           <div className="space-y-4 mb-8">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">TIMEFRAME IN DAYS</span>
-            <div className="flex items-center justify-between gap-1">
-              {[1, 2, 3, 4, 5, 6, 7].map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setDays(d)}
-                  className={`flex h-8 w-full items-center justify-center rounded-md text-xs font-bold transition-colors ${
-                    days === d
-                      ? "bg-primary text-primary-foreground" 
-                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                  }`}
-                >
-                  {d}d
-                </button>
-              ))}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">TIMEFRAME IN HOURS</span>
+              <span className="text-sm font-bold text-primary">{hours}h</span>
             </div>
+            <input
+              type="range"
+              min="1"
+              max="24"
+              value={hours}
+              onChange={(e) => setHours(parseInt(e.target.value))}
+              className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0"
+            />
           </div>
 
           <div className="space-y-4">

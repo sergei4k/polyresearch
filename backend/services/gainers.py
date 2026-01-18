@@ -309,7 +309,7 @@ class GainersService:
         print("📊 Fetching recent trades...")
         trades = self.get_recent_trades(hours=hours, limit=fetch_limit)
         print(f"   Found {len(trades)} trades")
-
+        
         if not trades:
             return []
 

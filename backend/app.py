@@ -138,17 +138,18 @@ def filter_markets():
                 'activity_count': gainer.get('activity_count', 0)
             })
 
-        # Sort by profit and take top 10
+        # Sort by profit and take top 50 (max)
         filtered_profiles.sort(key=lambda x: x['profit'], reverse=True)
-        top_10 = filtered_profiles[:10]
+        max_profiles = filtered_profiles[:50]
 
         print(f"Filter results: {filter_stats}")
-        print(f"Total filtered: {len(filtered_profiles)}, Returning top {len(top_10)} profiles")
+        print(f"Total filtered: {len(filtered_profiles)}, Returning {len(max_profiles)} profiles")
 
         return jsonify({
             'status': 'success',
-            'count': len(top_10),
-            'profiles': top_10
+            'count': len(max_profiles),
+            'total': len(filtered_profiles),
+            'profiles': max_profiles
         })
 
     except Exception as e:
@@ -163,31 +164,31 @@ def filter_markets():
 @app.route('/api/trendings', methods=['GET'])
 def trendings():
     """
-    Get trending markets from Polymarket Gamma API.
-    Returns market name, current prices, volume, and other relevant info.
+    Get trending events from Polymarket Gamma API.
+    Returns events with their markets grouped together to avoid data repetition.
     """
     try:
+        import json as json_module
+        
         # Get query params
         limit = request.args.get('limit', 20, type=int)
         
-        # Fetch trending markets
+        # Fetch trending events
         events = markets_service.get_trending_markets(limit=limit)
         
-        trending_markets = []
+        trending_events = []
         for event in events:
-            # Extract markets from event
             event_markets = event.get('markets', [])
             
+            # Build list of markets for this event
+            markets_list = []
             for market in event_markets:
-                # Get outcome prices (Yes/No)
-                outcomes = market.get('outcomes', ['Yes', 'No'])
                 outcome_prices = market.get('outcomePrices', [])
                 
                 # Parse prices - they come as strings like '["0.65", "0.35"]'
                 if isinstance(outcome_prices, str):
                     try:
-                        import json
-                        outcome_prices = json.loads(outcome_prices)
+                        outcome_prices = json_module.loads(outcome_prices)
                     except:
                         outcome_prices = []
                 
@@ -199,29 +200,35 @@ def trendings():
                     except:
                         yes_price = 0
                 
-                trending_markets.append({
+                markets_list.append({
                     'id': market.get('id'),
-                    'event_id': event.get('id'),
-                    'event_slug': event.get('slug'),
                     'question': market.get('question') or event.get('title'),
-                    'event_title': event.get('title'),
-                    'image': event.get('image'),
                     'yes_price': round(yes_price, 1),
                     'no_price': round(100 - yes_price, 1),
-                    'volume': float(event.get('volume', 0) or 0),
-                    'volume_24h': float(event.get('volume24hr', 0) or 0),
-                    'liquidity': float(event.get('liquidity', 0) or 0),
-                    'end_date': event.get('endDate'),
-                    'category': event.get('tags', [None])[0] if event.get('tags') else None,
                 })
+            
+            # Event-level data (only once per event)
+            trending_events.append({
+                'event_id': event.get('id'),
+                'slug': event.get('slug'),
+                'title': event.get('title'),
+                'image': event.get('image'),
+                'url': f"https://polymarket.com/event/{event.get('slug')}" if event.get('slug') else None,
+                'volume': float(event.get('volume', 0) or 0),
+                'volume_24h': float(event.get('volume24hr', 0) or 0),
+                'liquidity': float(event.get('liquidity', 0) or 0),
+                'end_date': event.get('endDate'),
+                'category': event.get('tags', [None])[0] if event.get('tags') else None,
+                'markets': markets_list,
+            })
         
         # Sort by 24h volume
-        trending_markets.sort(key=lambda x: x['volume_24h'], reverse=True)
+        trending_events.sort(key=lambda x: x['volume_24h'], reverse=True)
         
         return jsonify({
             'status': 'success',
-            'count': len(trending_markets),
-            'markets': trending_markets[:limit]
+            'count': len(trending_events[:limit]),
+            'events': trending_events[:limit]
         })
         
     except Exception as e:

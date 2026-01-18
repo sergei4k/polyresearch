@@ -13,6 +13,7 @@ interface Market {
   yes_price: number;
   no_price: number;
   volume_24h: number;
+  url: string;
 }
 
 interface TrendingResponse {
@@ -56,8 +57,11 @@ export function TrendingBar() {
       <div className="relative flex overflow-hidden w-full group h-full items-center">
         <div className="flex animate-marquee hover:pause whitespace-nowrap items-center">
             {displayMarkets.map((market, i) => (
-                <div 
+                <a 
                     key={`${market.id}-${i}`}
+                    href={market.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-3 px-4 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1 py-1"
                 >
                     <span className="text-xs font-medium text-foreground/90">
@@ -67,13 +71,16 @@ export function TrendingBar() {
                         <span className="text-primary font-bold">Yes {market.yes_price}%</span>
                         <span className="text-muted-foreground">No {market.no_price}%</span>
                     </div>
-                </div>
+                </a>
             ))}
         </div>
         <div className="flex absolute top-0 animate-marquee2 hover:pause whitespace-nowrap items-center h-full">
              {displayMarkets.map((market, i) => (
-                <div 
+                <a 
                     key={`${market.id}-${i}-duplicate`}
+                    href={market.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-3 px-4 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1 py-1"
                 >
                     <span className="text-xs font-medium text-foreground/90">
@@ -83,7 +90,7 @@ export function TrendingBar() {
                         <span className="text-primary font-bold">Yes {market.yes_price}%</span>
                         <span className="text-muted-foreground">No {market.no_price}%</span>
                     </div>
-                </div>
+                </a>
             ))}
         </div>
       </div>
@@ -91,10 +98,10 @@ export function TrendingBar() {
       {/* Styles for marquee animation */}
       <style jsx>{`
         .animate-marquee {
-          animation: marquee 120s linear infinite;
+          animation: marquee 10000s linear infinite;
         }
         .animate-marquee2 {
-          animation: marquee2 120s linear infinite;
+          animation: marquee2 10000s linear infinite;
         }
         .group:hover .animate-marquee,
         .group:hover .animate-marquee2 {

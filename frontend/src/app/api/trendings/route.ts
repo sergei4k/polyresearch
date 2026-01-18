@@ -1,468 +1,51 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-    const data = {
-        "count": 893,
-        "markets": [
-            {
-                "category": {
-                    "forceShow": true,
-                    "id": "100196",
-                    "label": "Fed Rates",
-                    "requiresTranslation": false,
-                    "slug": "fed-rates",
-                    "updatedAt": "2026-01-15T22:11:22.011462Z"
-                },
-                "end_date": "2026-01-28T00:00:00Z",
-                "event_id": "45883",
-                "event_slug": "fed-decision-in-january",
-                "event_title": "Fed decision in January?",
-                "id": "601697",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/jerome+powell+glasses1.png",
-                "liquidity": 16004425.073,
-                "no_price": 99.7,
-                "question": "Fed decreases interest rates by 50+ bps after January 2026 meeting?",
-                "volume": 404179451.40643,
-                "volume_24h": 15978445.168990005,
-                "yes_price": 0.4
-            },
-            {
-                "category": {
-                    "forceShow": true,
-                    "id": "100196",
-                    "label": "Fed Rates",
-                    "requiresTranslation": false,
-                    "slug": "fed-rates",
-                    "updatedAt": "2026-01-15T22:11:22.011462Z"
-                },
-                "end_date": "2026-01-28T00:00:00Z",
-                "event_id": "45883",
-                "event_slug": "fed-decision-in-january",
-                "event_title": "Fed decision in January?",
-                "id": "601698",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/jerome+powell+glasses1.png",
-                "liquidity": 16004425.073,
-                "no_price": 96.3,
-                "question": "Fed decreases interest rates by 25 bps after January 2026 meeting?",
-                "volume": 404179451.40643,
-                "volume_24h": 15978445.168990005,
-                "yes_price": 3.6
-            },
-            {
-                "category": {
-                    "forceShow": true,
-                    "id": "100196",
-                    "label": "Fed Rates",
-                    "requiresTranslation": false,
-                    "slug": "fed-rates",
-                    "updatedAt": "2026-01-15T22:11:22.011462Z"
-                },
-                "end_date": "2026-01-28T00:00:00Z",
-                "event_id": "45883",
-                "event_slug": "fed-decision-in-january",
-                "event_title": "Fed decision in January?",
-                "id": "601699",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/jerome+powell+glasses1.png",
-                "liquidity": 16004425.073,
-                "no_price": 4.1,
-                "question": "No change in Fed interest rates after January 2026 meeting?",
-                "volume": 404179451.40643,
-                "volume_24h": 15978445.168990005,
-                "yes_price": 95.9
-            },
-            {
-                "category": {
-                    "forceShow": true,
-                    "id": "100196",
-                    "label": "Fed Rates",
-                    "requiresTranslation": false,
-                    "slug": "fed-rates",
-                    "updatedAt": "2026-01-15T22:11:22.011462Z"
-                },
-                "end_date": "2026-01-28T00:00:00Z",
-                "event_id": "45883",
-                "event_slug": "fed-decision-in-january",
-                "event_title": "Fed decision in January?",
-                "id": "601700",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/jerome+powell+glasses1.png",
-                "liquidity": 16004425.073,
-                "no_price": 99.8,
-                "question": "Fed increases interest rates by 25+ bps after January 2026 meeting?",
-                "volume": 404179451.40643,
-                "volume_24h": 15978445.168990005,
-                "yes_price": 0.1
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1174855",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Bills vs. Broncos",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183333",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 0.0,
-                "question": "Bills vs. Broncos: O/U 46.5",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 100.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183335",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 0.0,
-                "question": "Bills Team Total: O/U 13.5",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 100.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183337",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 0.0,
-                "question": "Bills vs. Broncos: 1H O/U 23.5",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 100.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183339",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "RJ Harvey: Anytime Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183341",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Josh Allen: Anytime Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183343",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Khalil Shakir: Anytime Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183345",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Bo Nix: Anytime Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183347",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Pat Bryant: Anytime Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183349",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "RJ Harvey: First Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183351",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 50.1,
-                "question": "Josh Allen: First Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 49.9
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183353",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Khalil Shakir: First Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183355",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Bo Nix: First Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183357",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 100.0,
-                "question": "Pat Bryant: First Touchdown",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 0.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183359",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 0.0,
-                "question": "James Cook: Rushing Yards O/U 76.5",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 100.0
-            },
-            {
-                "category": {
-                    "createdAt": "2024-09-23T22:41:37.670714Z",
-                    "forceShow": false,
-                    "id": "100639",
-                    "label": "Games",
-                    "requiresTranslation": false,
-                    "slug": "games",
-                    "updatedAt": "2026-01-16T19:21:04.763274Z"
-                },
-                "end_date": "2026-01-17T21:30:00Z",
-                "event_id": "161553",
-                "event_slug": "nfl-buf-den-2026-01-17",
-                "event_title": "Bills vs. Broncos",
-                "id": "1183361",
-                "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
-                "liquidity": 0.44513,
-                "no_price": 0.0,
-                "question": "Bo Nix: Rushing Yards O/U 22.5",
-                "volume": 13866740.070343,
-                "volume_24h": 12310627.518447896,
-                "yes_price": 100.0
-            }
-        ],
-        "status": "success"
-    };
+    try {
+        const res = await fetch('http://127.0.0.1:5000/api/trendings', {
+            next: { revalidate: 60 } // Cache for 60 seconds
+        });
 
-    return NextResponse.json(data);
+        if (!res.ok) {
+            throw new Error('Failed to fetch from backend');
+        }
+
+        const data = await res.json();
+
+        // Transform backend event-based structure to flat market list
+        const markets = [];
+        if (data.status === 'success' && Array.isArray(data.events)) {
+            for (const event of data.events) {
+                if (Array.isArray(event.markets)) {
+                    for (const market of event.markets) {
+                        markets.push({
+                            id: market.id,
+                            category: {
+                                label: event.category || 'Trending'
+                            },
+                            event_title: event.title,
+                            question: market.question,
+                            yes_price: market.yes_price,
+                            no_price: market.no_price,
+                            volume_24h: event.volume_24h,
+                            url: event.url
+                        });
+                    }
+                }
+            }
+        }
+
+        return NextResponse.json({
+            status: 'success',
+            count: markets.length,
+            markets: markets
+        });
+    } catch (error) {
+        console.error('Error in trendings API route:', error);
+        return NextResponse.json({
+            status: 'error',
+            message: 'Failed to fetch trending markets',
+            markets: []
+        }, { status: 500 });
+    }
 }

@@ -129,19 +129,7 @@ export default function Home() {
     };
   }, []);
 
-  // Auto-refresh when market filter changes
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    // Skip the first render to avoid fetching on initial load
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    
-    // Clear current profiles and fetch new data when market changes
-    setProfiles([]);
-    handleApply();
-  }, [selectedMarket]);
+
 
   const markets = [
     "Trending",

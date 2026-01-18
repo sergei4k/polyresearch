@@ -1,45 +1,40 @@
 
 import { NextResponse } from 'next/server';
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5001';
+
 export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        let data;
-        try {
-            // Forward request to Python backend
-            const response = await fetch('http://127.0.0.1:5002/api/filter_markets', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body),
-            });
+        console.log("Forwarding filter request to backend:", body);
 
-            if (!response.ok) {
-                throw new Error(`Backend responded with ${response.status}`);
-            }
+        // Forward request to Flask backend
+        const backendResponse = await fetch(`${BACKEND_URL}/api/filter_markets`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
 
-            data = await response.json();
-        } catch (backendError) {
-            console.warn("Backend unavailable, using mock data:", backendError);
-            // Mock response data
-            data = {
-                message: "Filters applied successfully (Mock Data)",
-                filtersReceived: body,
-                results: [
-                    { id: 1, name: "Result A", score: 98 },
-                    { id: 2, name: "Result B", score: 85 },
-                ]
-            };
+        if (!backendResponse.ok) {
+            throw new Error(`Backend responded with status: ${backendResponse.status}`);
         }
+
+        const data = await backendResponse.json();
+
+        console.log("Received response from backend:", data);
 
         return NextResponse.json(data);
 
     } catch (error) {
         console.error("Error processing filter request:", error);
         return NextResponse.json(
-            { error: "Failed to process filters" },
+            {
+                error: "Failed to process filters",
+                details: error instanceof Error ? error.message : 'Unknown error'
+            },
             { status: 500 }
         );
     }

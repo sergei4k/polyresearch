@@ -30,7 +30,11 @@ export function TrendingBar() {
         const res = await fetch("/api/trendings");
         const data: TrendingResponse = await res.json();
         if (data.status === "success") {
-          setMarkets(data.markets);
+          // Deduplicate by event_title, keeping the first occurrence
+          const uniqueMarkets = Array.from(
+            new Map(data.markets.map(m => [m.event_title, m])).values()
+          );
+          setMarkets(uniqueMarkets);
         }
       } catch (error) {
         console.error("Failed to fetch trending markets:", error);
@@ -45,6 +49,32 @@ export function TrendingBar() {
   // Duplicate items for seamless loop
   const displayMarkets = [...markets, ...markets]; // Double is usually enough for screen width coverage
 
+  const renderMarketItem = (market: Market, key: string) => {
+    const isNoHigher = market.no_price > market.yes_price;
+    
+    return (
+        <a 
+            key={key}
+            href={market.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-4 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1 py-1"
+        >
+            <span className="text-xs font-medium text-foreground/90">
+                {market.event_title}
+            </span>
+            <div className="flex items-center gap-2 text-[10px] font-mono">
+                <span className={`font-bold ${isNoHigher ? 'text-muted-foreground' : 'text-primary'}`}>
+                    Yes {market.yes_price}%
+                </span>
+                <span className={`${isNoHigher ? 'text-red-500 font-bold' : 'text-muted-foreground'}`}>
+                    No {market.no_price}%
+                </span>
+            </div>
+        </a>
+    );
+  };
+
   return (
     <div className="flex-1 flex items-center overflow-hidden h-full mask-linear-fade">
       <div className="flex items-center gap-2 px-4 h-full border-l border-border/50 shrink-0 ml-4">
@@ -56,52 +86,20 @@ export function TrendingBar() {
       
       <div className="relative flex overflow-hidden w-full group h-full items-center">
         <div className="flex animate-marquee hover:pause whitespace-nowrap items-center">
-            {displayMarkets.map((market, i) => (
-                <a 
-                    key={`${market.id}-${i}`}
-                    href={market.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-4 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1 py-1"
-                >
-                    <span className="text-xs font-medium text-foreground/90">
-                        {market.event_title}
-                    </span>
-                    <div className="flex items-center gap-2 text-[10px] font-mono">
-                        <span className="text-primary font-bold">Yes {market.yes_price}%</span>
-                        <span className="text-muted-foreground">No {market.no_price}%</span>
-                    </div>
-                </a>
-            ))}
+            {displayMarkets.map((market, i) => renderMarketItem(market, `${market.id}-${i}`))}
         </div>
         <div className="flex absolute top-0 animate-marquee2 hover:pause whitespace-nowrap items-center h-full">
-             {displayMarkets.map((market, i) => (
-                <a 
-                    key={`${market.id}-${i}-duplicate`}
-                    href={market.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-4 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1 py-1"
-                >
-                    <span className="text-xs font-medium text-foreground/90">
-                        {market.event_title}
-                    </span>
-                    <div className="flex items-center gap-2 text-[10px] font-mono">
-                        <span className="text-primary font-bold">Yes {market.yes_price}%</span>
-                        <span className="text-muted-foreground">No {market.no_price}%</span>
-                    </div>
-                </a>
-            ))}
+             {displayMarkets.map((market, i) => renderMarketItem(market, `${market.id}-${i}-duplicate`))}
         </div>
       </div>
       
       {/* Styles for marquee animation */}
       <style jsx>{`
         .animate-marquee {
-          animation: marquee 10000s linear infinite;
+          animation: marquee 220s linear infinite;
         }
         .animate-marquee2 {
-          animation: marquee2 10000s linear infinite;
+          animation: marquee2 220s linear infinite;
         }
         .group:hover .animate-marquee,
         .group:hover .animate-marquee2 {

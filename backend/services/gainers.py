@@ -7,7 +7,7 @@ import time
 DATA_API_BASE = "https://data-api.polymarket.com"
 
 class GainersService:
-    """Track gains for new accounts on Polymarket."""
+    """Track gains for active accounts on Polymarket."""
     
     def __init__(self):
         self.session = requests.Session()
@@ -212,67 +212,89 @@ class GainersService:
         
         return total_gain
     
-    def find_top_gainers(self, hours: int = 24, limit: int = 20, min_profit: float = 0, sort_by: str = 'profit', **kwargs) -> List[Dict]:
+    def find_top_gainers(self, hours: int = 24, limit: int = 20, min_profit: float = 0, sort_by: str = 'profit', token_ids: set = None, account_age_hours: int = 0, **kwargs) -> List[Dict]:
         """
-        Find top gainers among new accounts in the last N hours.
-        
+        Find top gainers among active accounts in the last N hours.
+
         Args:
-            hours: Number of hours to look back
+            hours: Number of hours to look back for activity
             limit: Number of top gainers to return
             min_profit: Minimum profit filter
             sort_by: Field to sort by
-        
+            token_ids: Set of token IDs to filter markets by (None = all markets)
+            account_age_hours: Maximum account age in hours (0 = no age filter)
+
         Returns:
             List of dictionaries with wallet, gain, and metadata
         """
         print(f"🔍 Analyzing Polymarket activity for the last {hours} hours...")
-        
+        if token_ids:
+            print(f"   Filtering by {len(token_ids)} market token IDs")
+        if account_age_hours > 0:
+            account_age_days = account_age_hours / 24
+            print(f"   Filtering for accounts created within {account_age_days} days ({account_age_hours} hours)")
+
         # Get cutoff time
         cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
-        
+
         # Step 1: Fetch recent trades
         # Note: We fetch more trades than limit usually to ensure we catch enough activity
         fetch_limit = 2000
         if hours > 24:
             fetch_limit = 5000
-            
+
         print("📊 Fetching recent trades...")
         trades = self.get_recent_trades(hours=hours, limit=fetch_limit)
         print(f"   Found {len(trades)} trades")
-        
+
         if not trades:
             return []
-        
+
+        # Step 1.5: Filter trades by token IDs if specified
+        if token_ids:
+            original_count = len(trades)
+            trades = [t for t in trades if t.get('tokenId') in token_ids]
+            print(f"   Filtered to {len(trades)} trades in specified markets (from {original_count})")
+
+            if not trades:
+                print("   No trades found in specified market category")
+                return []
+
         # Step 2: Extract unique wallets
         wallets = set()
         for trade in trades:
             wallet = trade.get('proxyWallet') or trade.get('user') or trade.get('wallet')
             if wallet:
                 wallets.add(wallet)
-        
+
         print(f"   Found {len(wallets)} unique wallets")
-        
-        # Step 3: Filter for new accounts
-        print("🆕 Identifying new accounts...")
-        new_wallets = []
-        checked = 0
-        
-        for wallet in wallets:
-            checked += 1
-            if self.is_new_account(wallet, cutoff_time, trades):
-                new_wallets.append(wallet)
-        
-        print(f"\n   Found {len(new_wallets)} new accounts")
-        
-        if not new_wallets:
+
+        # Step 3: Filter by account age if specified
+        if account_age_hours > 0:
+            account_age_cutoff = datetime.now(timezone.utc) - timedelta(hours=account_age_hours)
+            account_age_days = account_age_hours / 24
+            print(f"🔍 Filtering for accounts created after {account_age_cutoff}...")
+
+            active_wallets = []
+            for wallet in wallets:
+                if self.is_new_account(wallet, account_age_cutoff, trades):
+                    active_wallets.append(wallet)
+
+            print(f"   Found {len(active_wallets)} accounts created within {account_age_days} days")
+        else:
+            # No age filter - include all active wallets
+            active_wallets = list(wallets)
+            print(f"💼 Analyzing {len(active_wallets)} active wallets...")
+
+        if not active_wallets:
             return []
-        
-        # Step 4: Calculate gains for new accounts
-        print("💰 Calculating gains for new accounts...")
+
+        # Step 4: Calculate gains for active accounts
+        print("💰 Calculating gains for active accounts...")
         gains_data = []
-        
-        for i, wallet in enumerate(new_wallets):
-            # Calculate gain from trades
+
+        for i, wallet in enumerate(active_wallets):
+            # Calculate gain from trades (only from filtered trades)
             trade_gain = self.calculate_gain_from_trades(wallet, trades)
 
             if trade_gain >= min_profit:
@@ -285,7 +307,7 @@ class GainersService:
                     'trades': len([t for t in trades if t.get('proxyWallet') == wallet or t.get('user') == wallet]),
                     'activity_count': 0
                 })
-        
+
         # Step 5: Sort
         if sort_by == 'activity_gain':
             gains_data.sort(key=lambda x: x['activity_gain'], reverse=True)
@@ -293,5 +315,5 @@ class GainersService:
             gains_data.sort(key=lambda x: x['trades'], reverse=True)
         else:
             gains_data.sort(key=lambda x: x['profit'], reverse=True)
-            
+
         return gains_data[:limit]

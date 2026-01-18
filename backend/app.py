@@ -38,16 +38,30 @@ def filter_markets():
         trades_condition = data.get('tradesCondition', 'less')
         trades_count = data.get('tradesCount', 0)
         user_name_visibility = data.get('userNameVisibility', 'public')
+        account_age_hours = data.get('accountAgeHours', 0)
 
         print(f"Received filter request: {data}")
         print(f"Filter: {trades_condition} than {trades_count} trades")
+        print(f"Market category: {market}")
 
-        # Fetch top gainers based on timeframe
+        # Fetch token IDs for the selected market category
+        token_ids = None
+        if market:
+            print(f"Fetching markets for category: {market}")
+            token_ids = markets_service.get_token_ids_for_category(market)
+            print(f"Found {len(token_ids)} tokens in {market} category")
+
+        # Fetch top gainers based on timeframe and market filter
         print(f"Fetching gainers for {hours} hours...")
+        if account_age_hours > 0:
+            account_age_days = account_age_hours / 24
+            print(f"Filtering for accounts created within {account_age_days} days ({account_age_hours} hours)")
         gainers = gainers_service.find_top_gainers(
             hours=hours,
             limit=50,  # Fetch more than needed for filtering
-            min_profit=money_gain if money_gain > 0 else 0
+            min_profit=money_gain if money_gain > 0 else 0,
+            token_ids=token_ids,
+            account_age_hours=account_age_hours
         )
 
         # Apply filters

@@ -122,15 +122,15 @@ class MarketsService:
             'limit': limit,
             'closed': 'false'
         }
-        
+
         try:
             response = self.session.get(url, params=params)
              # If q param doesn't work, we might have to filter locally, but usually APIs support it
             if response.status_code != 200:
                 return []
-                
+
             data = response.json()
-             
+
             if isinstance(data, list):
                 return data
             elif isinstance(data, dict) and 'data' in data: # Pagination wrapper?
@@ -139,3 +139,83 @@ class MarketsService:
         except Exception as e:
             print(f"Error searching markets: {e}")
             return []
+
+    def get_markets_by_category(self, category: str, limit: int = 100) -> List[Dict[str, Any]]:
+        """
+        Fetch markets by category/tag.
+
+        Args:
+            category: Market category (e.g., 'Trending', 'Politics', 'Sports', 'Crypto')
+            limit: Maximum number of markets to return
+
+        Returns:
+            List of market dictionaries with their token IDs
+        """
+        url = f"{GAMMA_API_BASE}/events"
+
+        # Map frontend category names to API tags (lowercase for API)
+        # Polymarket API often uses lowercase tags
+        category_tag = category.lower().replace(' & ', '-').replace(' ', '-')
+
+        params = {
+            'limit': limit,
+            'closed': 'false',
+            'tag': category_tag if category != 'Trending' else None,
+            'order': 'volume24hr',
+            'ascending': 'false'
+        }
+
+        # Remove None values
+        params = {k: v for k, v in params.items() if v is not None}
+
+        try:
+            response = self.session.get(url, params=params, timeout=30)
+            response.raise_for_status()
+            events = response.json()
+
+            if not isinstance(events, list):
+                if isinstance(events, dict) and 'data' in events:
+                    events = events['data']
+                else:
+                    return []
+
+            # Extract token IDs from markets within events
+            markets_with_tokens = []
+            for event in events:
+                event_markets = event.get('markets', [])
+                for market in event_markets:
+                    markets_with_tokens.append({
+                        'event_id': event.get('id'),
+                        'event_slug': event.get('slug'),
+                        'market_id': market.get('id'),
+                        'token_id': market.get('clobTokenIds', []),  # This is often an array
+                        'condition_id': market.get('conditionId'),
+                        'question': market.get('question'),
+                    })
+
+            return markets_with_tokens
+        except Exception as e:
+            print(f"Error fetching markets by category '{category}': {e}")
+            return []
+
+    def get_token_ids_for_category(self, category: str) -> set:
+        """
+        Get all token IDs for markets in a given category.
+
+        Args:
+            category: Market category
+
+        Returns:
+            Set of token IDs
+        """
+        markets = self.get_markets_by_category(category, limit=200)
+        token_ids = set()
+
+        for market in markets:
+            token_id_list = market.get('token_id', [])
+            if isinstance(token_id_list, list):
+                token_ids.update(token_id_list)
+            elif token_id_list:  # Single value
+                token_ids.add(token_id_list)
+
+        return token_ids

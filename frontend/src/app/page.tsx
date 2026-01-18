@@ -39,6 +39,7 @@ export default function Home() {
   const [tradesCondition, setTradesCondition] = useState<"less" | "more">("less");
   const [tradesCount, setTradesCount] = useState(0);
   const [userNameVisibility, setUserNameVisibility] = useState<"hidden" | "public">("public");
+  const [accountAgeDays, setAccountAgeDays] = useState(0);
   const [isApplying, setIsApplying] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -62,6 +63,7 @@ export default function Home() {
           tradesCondition,
           tradesCount,
           userNameVisibility,
+          accountAgeHours: accountAgeDays * 24, // Convert days to hours for backend
         }),
       });
 
@@ -366,13 +368,45 @@ export default function Home() {
           <div className="space-y-4 mt-8">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">USER NAME</span>
             <div className="flex items-center">
-              <button 
+              <button
                 onClick={() => setUserNameVisibility(userNameVisibility === "hidden" ? "public" : "hidden")}
                 className="text-sm font-medium hover:text-primary transition-colors min-w-[5rem] text-center border border-border rounded-md px-2 py-1"
               >
                 {userNameVisibility === "hidden" ? "hidden" : "public"}
               </button>
             </div>
+          </div>
+
+          <div className="space-y-4 mt-8">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">MAX ACCOUNT AGE (DAYS)</span>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Only show accounts created within</span>
+              <div className="flex items-center rounded-md border border-border">
+                <button
+                  onClick={() => setAccountAgeDays(Math.max(0, accountAgeDays - 1))}
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Minus className="h-3 w-3" />
+                </button>
+                <div className="flex items-center justify-center px-1">
+                  <input
+                    type="number"
+                    value={accountAgeDays}
+                    onChange={(e) => setAccountAgeDays(parseInt(e.target.value) || 0)}
+                    style={{ width: `${Math.max(3, accountAgeDays.toString().length)}ch` }}
+                    className="bg-transparent text-center text-sm font-mono text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="text-sm text-muted-foreground ml-1">d</span>
+                </div>
+                <button
+                  onClick={() => setAccountAgeDays(accountAgeDays + 1)}
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Plus className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Set to 0 to include all accounts</p>
           </div>
           </div>
 

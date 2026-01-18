@@ -19,7 +19,8 @@ import {
   Plus,
   Loader2,
   ExternalLink,
-  X
+  X,
+  Info
 } from "lucide-react";
 import { TrendingBar } from "@/components/TrendingBar";
 
@@ -28,8 +29,6 @@ interface Profile {
   handle: string;
   profit: number;
   trades: number;
-  activity_gain: number;
-  activity_count: number;
 }
 
 export default function Home() {
@@ -51,6 +50,7 @@ export default function Home() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfiles, setSelectedProfiles] = useState<Profile[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleApply = async () => {
@@ -235,12 +235,63 @@ export default function Home() {
               </p>
               <span className="block text-lg mt-2 text-muted-foreground">— Ram Dass</span>
             </div>
-            <div className="flex items-center gap-2 px-1 cursor-pointer hover:opacity-80 transition-opacity">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Account</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-1 cursor-pointer hover:opacity-80 transition-opacity">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Account</span>
+              </div>
+              <button
+                onClick={() => setIsInfoOpen(true)}
+                className="p-2 rounded-full hover:bg-muted transition-colors"
+                title="About PolyWatcher"
+              >
+                <Info className="h-4 w-4 text-muted-foreground" />
+              </button>
             </div>
           </div>
         </aside>
+
+        {/* Info Popup */}
+        {isInfoOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setIsInfoOpen(false)}>
+            <div 
+              className="bg-card border border-border rounded-xl p-6 max-w-md mx-4 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Eye className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-serif font-bold">PolyWatcher</h2>
+                </div>
+                <button
+                  onClick={() => setIsInfoOpen(false)}
+                  className="p-1 rounded-full hover:bg-muted transition-colors"
+                >
+                  <X className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </div>
+              <div className="space-y-3 text-md text-muted-foreground">
+                <p>
+                  Insider trading creates an unfair advantage based on information that you do not have.
+                </p>
+                <p>
+                  <strong className="text-foreground">PolyWatcher</strong> helps you discover and track the most profitable traders on Polymarket.
+                </p>
+                <p>
+                  Filter by market category, timeframe, profit thresholds, and more to find wallets worth following.
+                </p>
+                <p>
+                  Use the filters on the right to narrow down results, then click on wallets to add them to your watchlist.
+                </p>
+                <div className="pt-3 border-t border-border mt-4">
+                  <p className="text-xs text-muted-foreground/60">
+                    Data sourced from Polymarket's public API. Not financial advice.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Center Panel - Main Features */}
         <section className="col-span-7 flex flex-col p-8 overflow-hidden">
@@ -277,9 +328,6 @@ export default function Home() {
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Trades
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Activity Gain
                       </th>
                     </tr>
                   </thead>
@@ -318,9 +366,6 @@ export default function Home() {
                         </td>
                         <td className="px-4 py-3 text-sm text-right">
                           {profile.trades}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          ${profile.activity_gain.toLocaleString()}
                         </td>
                       </tr>
                     ))}

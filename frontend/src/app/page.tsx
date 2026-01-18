@@ -14,7 +14,7 @@ import {
   ChevronDown,
   Activity,
   Zap,
-  LayoutDashboard,
+  Eye,
   Minus,
   Plus,
   Loader2,
@@ -123,6 +123,20 @@ export default function Home() {
     };
   }, []);
 
+  // Auto-refresh when market filter changes
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    // Skip the first render to avoid fetching on initial load
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    // Clear current profiles and fetch new data when market changes
+    setProfiles([]);
+    handleApply();
+  }, [selectedMarket]);
+
   const markets = [
     "Trending",
     "Breaking",
@@ -155,7 +169,7 @@ export default function Home() {
       <header className="flex h-14 min-h-[3.5rem] max-h-[3.5rem] items-center justify-between border-b border-border px-4 py-2 shrink-0 overflow-hidden">
         <div className="flex items-center gap-8 flex-1 overflow-hidden">
           <div className="flex items-center gap-2 flex-none">
-            <LayoutDashboard className="h-4 w-4 text-primary" />
+            <Eye className="h-5 w-5 text-primary" />
             <div className="flex flex-col">
               <span className="text-xl font-serif leading-none tracking-tight">PolyWatcher</span>
             </div>
@@ -214,9 +228,17 @@ export default function Home() {
                </div>
             </div>
           )}
-          <div className="mt-auto flex items-center gap-2 px-1 cursor-pointer hover:opacity-80 transition-opacity">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Account</span>
+          <div className="mt-auto space-y-4">
+            <div className="p-3">
+              <p className="text-base text-foreground/80 italic leading-relaxed">
+                "The quieter you are, the more you can hear"
+              </p>
+              <span className="block text-lg mt-2 text-muted-foreground">— Ram Dass</span>
+            </div>
+            <div className="flex items-center gap-2 px-1 cursor-pointer hover:opacity-80 transition-opacity">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Account</span>
+            </div>
           </div>
         </aside>
 

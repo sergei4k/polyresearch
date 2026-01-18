@@ -17,7 +17,8 @@ import {
   LayoutDashboard,
   Minus,
   Plus,
-  Loader2
+  Loader2,
+  ExternalLink
 } from "lucide-react";
 
 interface Profile {
@@ -228,7 +229,15 @@ export default function Home() {
                           #{index + 1}
                         </td>
                         <td className="px-4 py-3 text-sm font-mono">
-                          {profile.wallet.slice(0, 6)}...{profile.wallet.slice(-4)}
+                          <a
+                            href={`https://polygonscan.com/address/${profile.wallet}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-primary hover:underline transition-colors"
+                          >
+                            {profile.wallet.slice(0, 6)}...{profile.wallet.slice(-4)}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
                         </td>
                         <td className="px-4 py-3 text-sm text-right font-bold text-green-500">
                           ${profile.profit.toLocaleString()}

@@ -1,4 +1,4 @@
-# polyresearch
+# PolyWatcher: NexHacks 2026 Project - Polymarket track 
 
 ## PolyWatcher: Insider & Informed Trade Detector
 PolyWatcher is a specialized analytics engine designed to detect "Smart Money" and potential insider trading on Polymarket. By correlating data from the Gamma API (Identity/Social) and the Data API (Execution/P&L), the tool identifies wallets that trade with a high degree of "unnatural conviction"—positions taken shortly before market-moving news or with asymmetric risk profiles.
